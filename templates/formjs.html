@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Forex Demo</title>
+  </head>
+  <body>
+    <h1>Forex Demo</h1>
+
+    <h3>Enter a new currency</h3>
+    
+    <form action="" id="inquiry">
+      <p><input type="text" name="studid" size="20", placeholder="3 letter code"/>
+    </form>
+    <p><button onclick="doit()">Do it</button></p>
+    <p id="demo"></p>
+      
+    <script>
+      function doit() {
+	  const form = document.getElementById("inquiry");
+	  const studid = form.elements['studid'].value;
+	  const uri = 'dblook';
+	  document.getElementById("demo").innerHTML = uri + '<br>';
+	  
+	  let xmlhttp = new XMLHttpRequest();
+	  xmlhttp.onload = function() {
+              let recvText = xmlhttp.responseText;
+	      document.getElementById("demo").innerHTML += recvText + '<br>'
+	  }
+
+	  let payload = new FormData();
+	  payload.append('studid', studid)
+	  
+	  xmlhttp.open("POST", uri, true);
+	  xmlhttp.send(payload);
+      }
+    </script>
+  </body>
+</html>
