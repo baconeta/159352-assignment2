@@ -54,17 +54,8 @@ def form():
 def showit():
     sid = request.form['studid']
     conn = sqlite3.connect('flightbookingapp/college.db')
-    sql = '''
-    SELECT
-      studId,course,name,email
-    FROM
-      Enrolment INNER JOIN Student
-    WHERE
-      Enrolment.student=Student.studid and studid=\'{:s}\'
-    '''.format(sid)
-    curs = conn.execute(sql)
 
-    return render_template('show.html', rows=curs)
+    return render_template('show.html')
 
 
 @app.route('/formjs')
