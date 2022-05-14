@@ -1,18 +1,8 @@
-import os
 import sqlite3
 
-from flask import Flask, render_template, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import func
-
-basedir = os.path.abspath(os.path.dirname(__file__))
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] =\
-        'sqlite:///' + os.path.join(basedir, 'college.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
+from flightbookingapp import app
+from flightbookingapp.models import Student
+from flask import render_template, jsonify, request, redirect, url_for
 
 
 @app.route('/')
@@ -45,10 +35,10 @@ def dict_factory(curs, row):
 
 @app.route('/dblook', methods=['POST', 'GET'])
 def dblook():
-    conn = sqlite3.connect('test.db')
+    conn = sqlite3.connect('flightbookingapp/college.db')
     conn.row_factory = dict_factory
     curs = conn.cursor()
-    curs.execute('SELECT * FROM Student')
+    curs.execute(f'SELECT * FROM {Student}')
     rows = []
     for row in curs:
         rows.append(row)
@@ -63,7 +53,7 @@ def form():
 @app.route('/showit', methods=['POST', 'GET'])
 def showit():
     sid = request.form['studid']
-    conn = sqlite3.connect('college.db')
+    conn = sqlite3.connect('flightbookingapp/college.db')
     sql = '''
     SELECT
       studId,course,name,email
@@ -80,7 +70,3 @@ def showit():
 @app.route('/formjs')
 def formjs():
     return render_template('formjs.html')
-
-
-if __name__ == '__main__':
-    Flask.run(app)
