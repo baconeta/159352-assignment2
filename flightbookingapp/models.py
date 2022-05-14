@@ -1,22 +1,22 @@
-from datetime import datetime
 from flightbookingapp import db
 
 
 class Aircraft(db.Model):
-    id = db.Column(db.INT, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     name = db.Column(db.VARCHAR(50), nullable=False)
-    seats = db.Column(db.INT, nullable=False)
+    seats = db.Column(db.Integer, nullable=False)
 
     def __repr__(self):
         return f"Aircraft('{self.id}', '{self.name}')"
 
 
 class Customer(db.Model):
-    id = db.Column(db.INT, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     first_name = db.Column(db.VARCHAR(20), nullable=False)
     last_name = db.Column(db.VARCHAR(20), nullable=False)
     email = db.Column(db.VARCHAR(50), nullable=False, unique=True)
-    phone_number = db.Column(db.INT)
+    phone_number = db.Column(db.Integer)
+    bookings = db.relationship('Booking', backref='booking_ref')
 
     def __repr__(self):
         return f"Customer('{self.first_name}', '{self.last_name}')"
@@ -41,3 +41,19 @@ class Airport(db.Model):
 
     def __repr__(self):
         return f"Airport('{self.name}', '{self.int_code}')"
+
+
+class Booking(db.Model):
+    booking_ref = db.Column(db.VARCHAR(6), primary_key=True, nullable=False, unique=True)
+    customer = db.Column(db.Integer, db.ForeignKey('customer.id'))
+    flight = db.Column(db.Integer, db.ForeignKey('departure.id'))
+
+    def __repr__(self):
+        return f"Booking('{self.booking_ref}', '{self.customer.__repr__()}', '{self.flight.__repr__()}')"
+
+
+class Departure(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('flightnumber.id'), nullable=False)
+    date = db.Column(db.DateTime, nullable=False)
+    price = db.Column(db.Float, nullable=False, default=0.00)
