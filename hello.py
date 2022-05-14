@@ -1,8 +1,18 @@
+import os
 import sqlite3
 
 from flask import Flask, render_template, jsonify, request
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
+
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+        'sqlite:///' + os.path.join(basedir, 'college.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
 
 
 @app.route('/')
@@ -35,7 +45,7 @@ def dict_factory(curs, row):
 
 @app.route('/dblook', methods=['POST', 'GET'])
 def dblook():
-    conn = sqlite3.connect('college.db')
+    conn = sqlite3.connect('test.db')
     conn.row_factory = dict_factory
     curs = conn.cursor()
     curs.execute('SELECT * FROM Student')
