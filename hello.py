@@ -4,21 +4,26 @@ from flask import Flask, render_template, jsonify, request
 
 app = Flask(__name__)
 
+
 @app.route('/')
 def index():
     return '<h1>Index Page</h1>'
+
 
 @app.route('/hello')
 def hello():
     return '<h1>Hello, World!</h1>'
 
+
 @app.route('/hello/<name>/<int:idnum>')
 def hello_you(name, idnum):
     return '<h1>Hello</h1><h3>' + name + ' ' + str(idnum)
 
+
 @app.route('/puppies')
 def puppies():
     return render_template('puppies.html')
+
 
 # Helper function needed to get SQLite3 rows as dictionaries
 def dict_factory(curs, row):
@@ -26,6 +31,7 @@ def dict_factory(curs, row):
     for idx, col in enumerate(curs.description):
         d[col[0]] = row[idx]
     return d
+
 
 @app.route('/dblook', methods=['POST', 'GET'])
 def dblook():
@@ -38,13 +44,15 @@ def dblook():
         rows.append(row)
     return jsonify(rows)
 
+
 @app.route('/form')
 def form():
     return render_template('form.html')
-    
+
+
 @app.route('/showit', methods=['POST', 'GET'])
 def showit():
-    sid= request.form['studid']
+    sid = request.form['studid']
     conn = sqlite3.connect('college.db')
     sql = '''
     SELECT
@@ -55,12 +63,14 @@ def showit():
       Enrolment.student=Student.studid and studid=\'{:s}\'
     '''.format(sid)
     curs = conn.execute(sql)
-    
+
     return render_template('show.html', rows=curs)
+
 
 @app.route('/formjs')
 def formjs():
     return render_template('formjs.html')
+
 
 if __name__ == '__main__':
     Flask.run(app)
