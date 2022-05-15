@@ -15,9 +15,15 @@ def about():
     return render_template('about.html', title='About Us')
 
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
+    if form.validate_on_submit():
+        if form.email.data == "admin@kulta.com" and form.password.data == "password":
+            flash(f"Welcome back to Kulta Air, {form.email.data}.", 'success')
+            return redirect(url_for('home'))
+        else:
+            flash(f"Username or password invalid. Check your information and try again.", 'danger')
     return render_template('login.html', title='Login', form=form)
 
 
