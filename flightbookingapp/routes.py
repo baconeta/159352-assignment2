@@ -1,4 +1,5 @@
 from flightbookingapp import app
+from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, FlightNumber, Airport
 from flask import render_template, jsonify, request, redirect, url_for
 
@@ -16,12 +17,14 @@ def about():
 
 @app.route('/login')
 def login():
-    return render_template('login.html', title='Login')
+    form = LoginForm()
+    return render_template('login.html', title='Login', form=form)
 
 
 @app.route('/register')
 def register():
-    return render_template('register.html', title='Register')
+    form = RegistrationForm()
+    return render_template('register.html', title='Register', form=form)
 
 
 @app.route('/booking')
