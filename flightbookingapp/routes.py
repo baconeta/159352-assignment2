@@ -1,7 +1,7 @@
 from flightbookingapp import app
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, FlightNumber, Airport
-from flask import render_template, jsonify, request, redirect, url_for
+from flask import render_template, jsonify, request, redirect, url_for, flash
 
 
 @app.route('/')
@@ -21,9 +21,12 @@ def login():
     return render_template('login.html', title='Login', form=form)
 
 
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
+    if form.validate_on_submit():
+        flash(f"Welcome to Kulta Air, {form.firstname.data}.", 'success')
+        return redirect(url_for('home'))
     return render_template('register.html', title='Register', form=form)
 
 
