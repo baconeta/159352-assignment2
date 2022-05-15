@@ -16,6 +16,7 @@ class Customer(db.Model):
     last_name = db.Column(db.VARCHAR(20), nullable=False)
     email = db.Column(db.VARCHAR(50), nullable=False, unique=True)
     phone_number = db.Column(db.Integer)
+    password = db.Column(db.VARCHAR(16), default=None)
     bookings = db.relationship('Booking', backref='booking_ref')
 
     def __repr__(self):
