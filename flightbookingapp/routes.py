@@ -1,5 +1,3 @@
-import sqlite3
-
 from flightbookingapp import app
 from flightbookingapp.models import Aircraft, Customer, FlightNumber, Airport
 from flask import render_template, jsonify, request, redirect, url_for
