@@ -19,6 +19,11 @@ def login():
     return render_template('login.html', title='Login')
 
 
+@app.route('/register')
+def register():
+    return render_template('register.html', title='Register')
+
+
 @app.route('/booking')
 def booking():
     return render_template('booking.html', title='Book a flight')
