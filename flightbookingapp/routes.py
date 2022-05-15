@@ -7,3 +7,8 @@ from flask import render_template, jsonify, request, redirect, url_for
 @app.route('/home')
 def home():
     return render_template('index.html')
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html', title='About Us')
