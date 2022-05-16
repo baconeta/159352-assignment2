@@ -17,7 +17,7 @@ class Customer(db.Model):
     email = db.Column(db.VARCHAR(50), nullable=False, unique=True)
     phone_number = db.Column(db.Integer)
     password = db.Column(db.VARCHAR(16), default=None)
-    bookings = db.relationship('Booking', backref='customer')
+    bookings = db.relationship('Booking', backref='booked_customer', lazy=True)
 
     def __repr__(self):
         return f"Customer('{self.first_name}', '{self.last_name}')"
@@ -46,8 +46,8 @@ class Airport(db.Model):
 
 class Booking(db.Model):
     booking_ref = db.Column(db.VARCHAR(6), primary_key=True, nullable=False, unique=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
-    flight = db.Column(db.Integer, db.ForeignKey('departure.id'))
+    customer = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
+    flight = db.Column(db.Integer, db.ForeignKey('departure.id'), nullable=False)
 
     def __repr__(self):
         return f"Booking('{self.booking_ref}', '{self.customer.__repr__()}', '{self.flight.__repr__()}')"
