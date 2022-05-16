@@ -1,4 +1,4 @@
-from flightbookingapp import app
+from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 from flask import render_template, jsonify, request, redirect, url_for, flash
@@ -31,8 +31,15 @@ def login():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
-        flash(f"Welcome to Kulta Air, {form.firstname.data}.", 'success')
-        return redirect(url_for('home'))
+        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+        user = Customer(first_name=form.firstname.data,
+                        last_name=form.lastname.data,
+                        email=form.email.data,
+                        password=hashed_password)
+        db.session.add(user)
+        db.session.commit()
+        flash(f"Welcome to Kulta Air, {form.firstname.data}. You can now login.", 'success')
+        return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
 
