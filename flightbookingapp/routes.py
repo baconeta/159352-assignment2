@@ -32,11 +32,11 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        user = Customer(first_name=form.firstname.data,
-                        last_name=form.lastname.data,
-                        email=form.email.data,
-                        password=hashed_password)
-        db.session.add(user)
+        customer = Customer(first_name=form.firstname.data,
+                            last_name=form.lastname.data,
+                            email=form.email.data,
+                            password=hashed_password)
+        db.session.add(customer)
         db.session.commit()
         flash(f"Welcome to Kulta Air, {form.firstname.data}. You can now login.", 'success')
         return redirect(url_for('login'))

@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from flightbookingapp.models import Customer
 
 
 class RegistrationForm(FlaskForm):
@@ -11,6 +12,11 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), Length(min=6, max=40), EqualTo('password')])
     submit = SubmitField('Register')
+
+    def validate_email(self, email):
+        customer = Customer.query.filter_by(email=email.data).first()
+        if customer:
+            raise ValidationError('Email address is already registered.')
 
 
 class LoginForm(FlaskForm):
