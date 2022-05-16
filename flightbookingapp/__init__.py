@@ -15,5 +15,6 @@ app.config['SECRET_KEY'] = "c0aa993116025ec489283c5bb9f4f059"  # TODO env variab
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 from flightbookingapp import routes

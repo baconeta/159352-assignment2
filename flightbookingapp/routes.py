@@ -2,7 +2,7 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 from flask import render_template, jsonify, request, redirect, url_for, flash
-from flask_login import login_user, current_user, logout_user
+from flask_login import login_user, current_user, logout_user, login_required
 
 
 @app.route('/')
@@ -62,5 +62,6 @@ def booking():
 
 
 @app.route('/customer')
+@login_required
 def customer():
     return render_template('customer.html', title='My account')
