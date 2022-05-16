@@ -23,7 +23,7 @@ class Customer(db.Model):
         return f"Customer('{self.first_name}', '{self.last_name}')"
 
 
-class FlightNumber(db.Model):
+class Route(db.Model):
     flight_code = db.Column(db.VARCHAR(10), primary_key=True, nullable=False, unique=True)
     depart_time = db.Column(db.DateTime, nullable=False)
     arrive_time = db.Column(db.DateTime, nullable=False)
@@ -55,6 +55,9 @@ class Booking(db.Model):
 
 class Departure(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
-    flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('flightnumber.id'), nullable=False)
+    flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('route.id'), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.00)
+
+    def __repr__(self):
+        return f"Departure('{self.flight_number}', '{self.date.date()}', '{self.price}')"

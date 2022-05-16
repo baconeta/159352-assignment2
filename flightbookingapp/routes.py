@@ -1,6 +1,6 @@
 from flightbookingapp import app
 from flightbookingapp.forms import *
-from flightbookingapp.models import Aircraft, Customer, FlightNumber, Airport
+from flightbookingapp.models import Aircraft, Customer, Route, Airport
 from flask import render_template, jsonify, request, redirect, url_for, flash
 
 
