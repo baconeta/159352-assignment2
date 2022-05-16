@@ -2,7 +2,7 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 from flask import render_template, jsonify, request, redirect, url_for, flash
-from flask_login import login_user
+from flask_login import login_user, current_user, logout_user
 
 
 @app.route('/')
@@ -18,6 +18,8 @@ def about():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         customer = Customer.query.filter_by(email=form.email.data).first()
@@ -32,6 +34,8 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
@@ -46,6 +50,17 @@ def register():
     return render_template('register.html', title='Register', form=form)
 
 
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('home'))
+
+
 @app.route('/booking')
 def booking():
     return render_template('booking.html', title='Book a flight')
+
+
+@app.route('/customer')
+def customer():
+    return render_template('customer.html', title='My account')
