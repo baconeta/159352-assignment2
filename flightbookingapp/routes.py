@@ -2,6 +2,7 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 from flask import render_template, jsonify, request, redirect, url_for, flash
+from flask_login import login_user
 
 
 @app.route('/')
@@ -19,8 +20,10 @@ def about():
 def login():
     form = LoginForm()
     if form.validate_on_submit():
-        if form.email.data == "admin@kulta.com" and form.password.data == "password":
-            flash(f"Welcome back to Kulta Air, {form.email.data}.", 'success')
+        customer = Customer.query.filter_by(email=form.email.data).first()
+        if customer and bcrypt.check_password_hash(customer.password, form.password.data):
+            login_user(customer, remember=form.remember.data)
+            flash(f"Welcome back to Kulta Air, {customer.first_name}.", 'success')
             return redirect(url_for('home'))
         else:
             flash(f"Username or password invalid. Check your information and try again.", 'danger')

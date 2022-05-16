@@ -1,4 +1,10 @@
-from flightbookingapp import db
+from flightbookingapp import db, login_manager
+from flask_login import UserMixin
+
+
+@login_manager.user_loader
+def load_customer(user_id):
+    return Customer.query.get(int(user_id))
 
 
 class Aircraft(db.Model):
@@ -10,7 +16,7 @@ class Aircraft(db.Model):
         return f"Aircraft('{self.id}', '{self.name}')"
 
 
-class Customer(db.Model):
+class Customer(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True, unique=True)
     first_name = db.Column(db.VARCHAR(20), nullable=False)
     last_name = db.Column(db.VARCHAR(20), nullable=False)
