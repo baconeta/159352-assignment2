@@ -11,13 +11,13 @@ class Aircraft(db.Model):
 
 
 class Customer(db.Model):
-    id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
+    id = db.Column(db.Integer, primary_key=True, unique=True)
     first_name = db.Column(db.VARCHAR(20), nullable=False)
     last_name = db.Column(db.VARCHAR(20), nullable=False)
     email = db.Column(db.VARCHAR(50), nullable=False, unique=True)
     phone_number = db.Column(db.Integer)
     password = db.Column(db.VARCHAR(16), default=None)
-    bookings = db.relationship('Booking', backref='booking_ref')
+    bookings = db.relationship('Booking', backref='customer')
 
     def __repr__(self):
         return f"Customer('{self.first_name}', '{self.last_name}')"
@@ -46,7 +46,7 @@ class Airport(db.Model):
 
 class Booking(db.Model):
     booking_ref = db.Column(db.VARCHAR(6), primary_key=True, nullable=False, unique=True)
-    customer = db.Column(db.Integer, db.ForeignKey('customer.id'))
+    customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
     flight = db.Column(db.Integer, db.ForeignKey('departure.id'))
 
     def __repr__(self):
@@ -55,7 +55,7 @@ class Booking(db.Model):
 
 class Departure(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
-    flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('route.id'), nullable=False)
+    flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('route.flight_code'), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.00)
 
