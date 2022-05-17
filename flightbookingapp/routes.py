@@ -65,4 +65,4 @@ def booking():
 @app.route('/customer')
 @login_required
 def customer():
-    return render_template('customer.html', title='My account')
+    return render_template('customer.html', title='My Account')

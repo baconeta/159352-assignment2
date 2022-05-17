@@ -1,4 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h1> Welcome to your account, {{ current_user.first_name }} </h1>
+    <h1 class="account-heading"> Kulta Club Account Details </h1>
+    <div class="content-section">
+        <div class="media">
+            <div class="media-body">
+                <h2 class="account-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
+                <p class="text-secondary">{{ current_user.email }}</p>
+                {% if current_user.phone_number == None %}
+                    <small class="text-secondary">No phone number provided</small>
+                {% else %}
+                    <p class="text-secondary">{{ current_user.phone_number }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 {% endblock content %}
