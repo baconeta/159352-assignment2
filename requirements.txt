@@ -3,7 +3,12 @@ charset-normalizer==2.0.12
 click==8.1.2
 colorama==0.4.4
 docopt==0.6.2
+email_validator==1.2.1
 Flask==2.1.1
+flask_sqlalchemy==2.5.1
+flask_bcrypt==1.0.1
+flask_login==0.6.1
+flask_wtf==1.0.1
 grip==4.6.1
 idna==3.3
 itsdangerous==2.1.2
