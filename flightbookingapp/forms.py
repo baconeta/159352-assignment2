@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerRangeField, IntegerField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from flightbookingapp.models import Customer
 
 
@@ -23,4 +23,17 @@ class LoginForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6, max=40)])
     remember = BooleanField('Remember me', default=False)
+    submit = SubmitField('Login')
+
+
+class BookingForm(FlaskForm):
+    fly_from = SelectField('From', validators=[DataRequired()], choices=[])
+    fly_to = SelectField('To', validators=[DataRequired()], choices=[])
+    tickets = IntegerField('Tickets', validators=[NumberRange(min=1, max=6, message="Select between 1 and 6 tickets.")])
+    submit = SubmitField('Search')
+
+
+class FindBookingForm(FlaskForm):
+    booking_ref = StringField('Booking Reference', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Login')

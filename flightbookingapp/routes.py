@@ -57,9 +57,10 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/booking')
+@app.route('/booking', methods=['GET', 'POST'])
 def booking():
-    return render_template('booking.html', title='Book a flight')
+    form = BookingForm()
+    return render_template('booking.html', title='Book a flight', form=form)
 
 
 @app.route('/customer')
