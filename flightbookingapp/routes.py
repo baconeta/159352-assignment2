@@ -65,6 +65,18 @@ def booking():
 @app.route('/customer')
 @login_required
 def customer():
-    bookings = current_user.bookings
+    user_bookings = current_user.bookings
     departures = Departure.query.all()
-    return render_template('customer.html', title='My Account', bookings=bookings, departures=departures)
+    return render_template('customer.html', title='My Account', bookings=user_bookings, departures=departures)
+
+
+@app.route('/bookings')
+def bookings():
+    user_bookings = []
+    departures = []
+    if current_user.is_authenticated:
+        user_bookings = current_user.bookings
+        departures = Departure.query.all()
+
+    return render_template('bookings.html', title='Bookings', loggedin=current_user.is_authenticated,
+                           user_bookings=user_bookings, departures=departures)

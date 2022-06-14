@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    {% if loggedin %}
+        <h1 class="bookings-heading"> Bookings </h1>
+        {% with departures=departures, bookings=user_bookings %}
+            {% include 'upcoming_bookings.html' %}
+        {% endwith %}
+    {% endif %}
+    <div class="content-section">
+        <h2 class="bookings-heading"> Search for a booking </h2>
+        {# TODO add a form to search for booking #}
+    </div>
+{% endblock content %}

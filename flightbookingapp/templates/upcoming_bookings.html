@@ -1,0 +1,29 @@
+<div class="content-section">
+    <div class="media">
+        <div class="media-body">
+            <h2 class="bookings-heading">Upcoming bookings</h2>
+            {% if bookings == [] %}
+                <p class="text-secondary"><a class="ml-2" href="{{ url_for('booking') }}">You have no upcoming bookings.
+                    Click here to make one!</a></p>
+            {% else %}
+                <br>
+                {# TODO make this way prettier#}
+                {% for booking in bookings %}
+                    <div class="content-section">
+                        <h2>Booking reference {{ booking.booking_ref.upper() }}</h2>
+                        {% for departure in departures %}
+                            {% if departure.id == booking.flight %}
+                                <h3>Flight {{ departure.flight_number }}</h3>
+                                <h4>Departure time: {{ departure.date.strftime("%a %d %B, %Y at %H:%M") }}</h4>
+                            {% endif %}
+                        {% endfor %}
+                        {# TODO Add cancel booking here #}
+                        {# TODO Add check for past bookings here #}
+                        {# TODO Add arrival time and timezones #}
+                    </div>
+                {% endfor %}
+
+            {% endif %}
+        </div>
+    </div>
+</div>
