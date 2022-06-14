@@ -27,10 +27,13 @@ class LoginForm(FlaskForm):
 
 
 class BookingForm(FlaskForm):
-    fly_from = SelectField('From', validators=[DataRequired()], choices=[])
-    fly_to = SelectField('To', validators=[DataRequired()], choices=[])
+    # TODO fix this default field option
+    fly_from = SelectField('From', validators=[DataRequired()], choices=[" "])
+    fly_to = SelectField('To', validators=[DataRequired()], choices=[" "])
     tickets = IntegerField('Tickets', validators=[NumberRange(min=1, max=6, message="Select between 1 and 6 tickets.")])
     submit = SubmitField('Search')
+
+    # TODO add validator for tickets number
 
 
 class FindBookingForm(FlaskForm):

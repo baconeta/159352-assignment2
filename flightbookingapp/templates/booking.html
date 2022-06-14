@@ -28,6 +28,7 @@
                             {% endfor %}
                         </div>
                     {% else %}
+                        {# TODO adjust 'fly to' options based on fly from selection #}
                         {{ form.fly_to(class="form-control form-control-lg") }}
                     {% endif %}
                 </div>
@@ -45,6 +46,7 @@
                     {% endif %}
                 </div>
             </fieldset>
+            {# TODO make this pretty somehow #}
             <div class="d-grid btn-group col-6 mx-auto">
                 <button class="btn btn-outline-info"
                         type="submit">{{ form.submit(class="btn btn-lg") }}</button>
