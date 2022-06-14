@@ -8,8 +8,36 @@
                 <p class="text-secondary">{{ current_user.email }}</p>
                 {% if current_user.phone_number == None %}
                     <small class="text-secondary">No phone number provided</small>
+                    <p class="text-secondary">Click here to add a phone number to your account.</p>
                 {% else %}
                     <p class="text-secondary">{{ current_user.phone_number }}</p>
+                    <p>Click here to update your phone number.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="content-section">
+        <div class="media">
+            <div class="media-body">
+                <h2 class="bookings-heading">Upcoming bookings</h2>
+                {% if bookings == [] %}
+                    <p class="text-secondary"><a class="ml-2" href="{{ url_for('booking') }}">You have no bookings.
+                        Click here to make one!</a></p>
+                {% else %}
+                    <br>
+                    {% for booking in bookings %}
+                        <div class="content-section">
+                            <h2>Booking reference {{ booking.booking_ref.upper() }}</h2>
+                            {% for departure in departures %}
+                                {% if departure.id == booking.flight %}
+                                    <h3>Flight {{ departure.flight_number }}</h3>
+                                    <h4>Departure time: {{ departure.date.strftime("%a %d %B, %Y at %H:%M") }}</h4>
+                                {% endif %}
+                            {% endfor %}
+{#                        TODO Add cancel booking here #}
+                        </div>
+                    {% endfor %}
+
                 {% endif %}
             </div>
         </div>

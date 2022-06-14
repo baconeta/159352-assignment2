@@ -65,4 +65,6 @@ def booking():
 @app.route('/customer')
 @login_required
 def customer():
-    return render_template('customer.html', title='My Account')
+    bookings = current_user.bookings
+    departures = Departure.query.all()
+    return render_template('customer.html', title='My Account', bookings=bookings, departures=departures)
