@@ -25,6 +25,7 @@
                         Click here to make one!</a></p>
                 {% else %}
                     <br>
+                    {# TODO make this way prettier#}
                     {% for booking in bookings %}
                         <div class="content-section">
                             <h2>Booking reference {{ booking.booking_ref.upper() }}</h2>
@@ -34,7 +35,9 @@
                                     <h4>Departure time: {{ departure.date.strftime("%a %d %B, %Y at %H:%M") }}</h4>
                                 {% endif %}
                             {% endfor %}
-{#                        TODO Add cancel booking here #}
+                            {# TODO Add cancel booking here #}
+                            {# TODO Add check for past bookings here #}
+                            {# TODO Add arrival time and timezones #}
                         </div>
                     {% endfor %}
 
