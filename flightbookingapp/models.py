@@ -31,9 +31,9 @@ class Customer(db.Model, UserMixin):
 
 class Route(db.Model):
     flight_code = db.Column(db.VARCHAR(10), primary_key=True, nullable=False, unique=True)
-    depart_time = db.Column(db.DateTime, nullable=False)
-    arrive_time = db.Column(db.DateTime, nullable=False)
-    stopover_time = db.Column(db.DateTime)
+    depart_time = db.Column(db.Time, nullable=False)
+    arrive_time = db.Column(db.Time, nullable=False)
+    stopover_time = db.Column(db.Time)
     depart_airport = db.Column(db.CHAR(4), db.ForeignKey('airport.int_code'), nullable=False)
     arrive_airport = db.Column(db.CHAR(4), db.ForeignKey('airport.int_code'), nullable=False)
     stopover_airport = db.Column(db.CHAR(4), db.ForeignKey('airport.int_code'))
@@ -62,7 +62,9 @@ class Booking(db.Model):
 class Departure(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('route.flight_code'), nullable=False)
-    date = db.Column(db.DateTime, nullable=False)
+    depart_date = db.Column(db.DateTime, nullable=False)
+    stopover_date = db.Column(db.DateTime)
+    arrival_date = db.Column(db.DateTime, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.00)
 
     def __repr__(self):
