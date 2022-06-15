@@ -37,6 +37,7 @@ class Route(db.Model):
     depart_airport = db.Column(db.CHAR(4), db.ForeignKey('airport.int_code'), nullable=False)
     arrive_airport = db.Column(db.CHAR(4), db.ForeignKey('airport.int_code'), nullable=False)
     stopover_airport = db.Column(db.CHAR(4), db.ForeignKey('airport.int_code'))
+    plane = db.Column(db.Integer, db.ForeignKey('aircraft.id'), nullable=False)
 
     def __repr__(self):
         return f"Flight('{self.flight_code}', '{self.depart_airport}')"
