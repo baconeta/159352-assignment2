@@ -75,8 +75,9 @@ def customer():
     return render_template('customer.html', title='My Account', bookings=user_bookings, departures=departures)
 
 
-@app.route('/bookings')
+@app.route('/bookings', methods=['GET', 'POST'])
 def bookings():
+    form = FindBookingForm()
     user_bookings = []
     departures = []
     if current_user.is_authenticated:
@@ -84,4 +85,4 @@ def bookings():
         departures = Departure.query.all()
 
     return render_template('bookings.html', title='Bookings', loggedin=current_user.is_authenticated,
-                           user_bookings=user_bookings, departures=departures)
+                           user_bookings=user_bookings, departures=departures, form=form)

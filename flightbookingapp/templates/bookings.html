@@ -5,9 +5,49 @@
         {% with departures=departures, bookings=user_bookings %}
             {% include 'upcoming_bookings.html' %}
         {% endwith %}
-    {% endif %}
-    <div class="content-section">
+        <div class="content-section">
+        <h3 class="bookings-heading"> Missing a booking? Add it manually.</h3>
+    {% else %}
+        <div class="content-section">
         <h2 class="bookings-heading"> Search for a booking </h2>
-        {# TODO add a form to search for a booking #}
-    </div>
+    {% endif %}
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <fieldset class="form-row">
+        <div class="form-group col-md-5">
+            {{ form.booking_ref.label(class="form-control-label") }}
+            {% if form.booking_ref.errors %}
+                {{ form.booking_ref(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.fly_from.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.booking_ref(class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        <div class="form-group col-md-5">
+            {{ form.surname.label(class="form-control-label") }}
+            {% if form.surname.errors %}
+                {{ form.surname(class="form-control form-control-lg is-invalid") }}
+                <div class="invalid-feedback">
+                    {% for error in form.surname.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {{ form.surname(class="form-control form-control-lg") }}
+            {% endif %}
+        </div>
+        <div class="d-grid btn-group col-2 mx-auto">
+            <button class="btn btn-outline-info"
+                    type="submit">{{ form.submit(class="btn btn-lg") }}</button>
+        </div>
+
+    </fieldset>
+    {# TODO make this pretty somehow #}
+
+</form>
+</div>
 {% endblock content %}
