@@ -1,7 +1,12 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerRangeField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
-from flightbookingapp.models import Customer
+from wtforms_sqlalchemy.fields import QuerySelectField
+from flightbookingapp.models import Customer, Airport
+
+
+def airports():
+    return Airport.query.all()
 
 
 class RegistrationForm(FlaskForm):
@@ -27,13 +32,15 @@ class LoginForm(FlaskForm):
 
 
 class BookingForm(FlaskForm):
-    # TODO fix this default field option
-    fly_from = SelectField('From', validators=[DataRequired()], choices=[" "])
-    fly_to = SelectField('To', validators=[DataRequired()], choices=[" "])
+    fly_from = QuerySelectField('From', query_factory=airports, allow_blank=True)
+    fly_to = QuerySelectField('To', query_factory=airports, allow_blank=True)
     tickets = IntegerField('Tickets', validators=[NumberRange(min=1, max=6, message="Select between 1 and 6 tickets.")])
     submit = SubmitField('Search')
 
     # TODO add validator for tickets number
+    def validate_airports(self, fly_from, fly_to):
+        if fly_to == " " or fly_from == " ":
+            raise ValidationError('Select an airport')
 
 
 class FindBookingForm(FlaskForm):
@@ -42,3 +49,4 @@ class FindBookingForm(FlaskForm):
     submit = SubmitField('Find Booking')
 
     # TODO add validator to find a booking
+

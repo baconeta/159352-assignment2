@@ -48,7 +48,7 @@ class Airport(db.Model):
     name = db.Column(db.VARCHAR(50), nullable=False)
 
     def __repr__(self):
-        return f"Airport('{self.name}', '{self.int_code}')"
+        return f"{self.name}: {self.int_code}"
 
 
 class Booking(db.Model):

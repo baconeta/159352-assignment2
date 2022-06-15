@@ -59,12 +59,14 @@ def logout():
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
-    airports = Airport.query.all()
+    # airports = Airport.query.all()
     form = BookingForm()
-    for airport in airports:
-        form.fly_from.choices.append(airport.name + ": " + airport.int_code)
-        form.fly_to.choices.append(airport.name + ": " + airport.int_code)
-    return render_template('booking.html', title='Book a flight', form=form, airports=airports)
+    if form.validate_on_submit():
+        print("You are searching for bookings from " + form.fly_from.data.int_code + " to " + form.fly_to.data.int_code)
+    # for airport in airports:
+    #     form.fly_from.choices.append(airport.name + ": " + airport.int_code)
+    #     form.fly_to.choices.append(airport.name + ": " + airport.int_code)
+    return render_template('booking.html', title='Book a flight', form=form)  # , airports=airports)
 
 
 @app.route('/customer')
