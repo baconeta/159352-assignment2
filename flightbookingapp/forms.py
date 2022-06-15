@@ -37,7 +37,7 @@ class BookingForm(FlaskForm):
 
 
 class FindBookingForm(FlaskForm):
-    booking_ref = StringField('Booking Reference', validators=[DataRequired()])
+    booking_ref = StringField('Booking Reference', validators=[DataRequired(), Length(min=1, max=6)])
     surname = StringField('Surname', validators=[DataRequired()])
     submit = SubmitField('Find Booking')
 
