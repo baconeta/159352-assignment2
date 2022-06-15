@@ -82,13 +82,14 @@ def bookings():
     form = FindBookingForm()
     if form.validate_on_submit():
         find_booking = Booking.query.filter_by(booking_ref=form.booking_ref.data).first()
-        booking_customer = Customer.query.filter_by(id=find_booking.customer).first()
-        if form.surname.data.upper() == booking_customer.last_name.upper():
-            # booking was found
-            # TODO open to the invoice page ?
-            pass
+        if find_booking:
+            booking_customer = Customer.query.filter_by(id=find_booking.customer).first()
+            if form.surname.data.upper() == booking_customer.last_name.upper():
+                print("Booking Found")
+                # TODO open to the invoice page ?
+                pass
         else:
-            # no booking found
+            print("No Booking Found")
             # TODO Warn customer that no booking was found with those details
             pass
         if find_booking:
