@@ -35,6 +35,7 @@ class BookingForm(FlaskForm):
     fly_from = QuerySelectField('From', query_factory=airports, allow_blank=False)
     fly_to = QuerySelectField('To', query_factory=airports, allow_blank=False)
     tickets = IntegerField('Tickets', validators=[NumberRange(min=1, max=6, message="Select between 1 and 6 tickets.")])
+    # calendar =
     submit = SubmitField('Search')
 
     # TODO add validator for tickets number

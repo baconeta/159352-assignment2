@@ -46,6 +46,7 @@ class Route(db.Model):
 class Airport(db.Model):
     int_code = db.Column(db.CHAR(4), primary_key=True, unique=True)
     name = db.Column(db.VARCHAR(50), nullable=False)
+    timezone = db.Column(db.String(50))
 
     def __repr__(self):
         return f"{self.name}: {self.int_code}"
@@ -63,9 +64,9 @@ class Booking(db.Model):
 class Departure(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False, unique=True)
     flight_number = db.Column(db.VARCHAR(10), db.ForeignKey('route.flight_code'), nullable=False)
-    depart_date = db.Column(db.DateTime, nullable=False)
-    stopover_date = db.Column(db.DateTime)
-    arrival_date = db.Column(db.DateTime, nullable=False)
+    depart_date = db.Column(db.Date, nullable=False)
+    stopover_date = db.Column(db.Date)
+    arrival_date = db.Column(db.Date, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.00)
     booked_seats = db.Column(db.Integer, nullable=False, default=0)
 
