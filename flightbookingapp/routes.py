@@ -107,5 +107,9 @@ def bookings():
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>')
 def search_results(fly_from, fly_to, tickets, date):
-    # TODO handle finding correct flights
+    number = 0  # TODO make this actually work, lol
+    if number != 0:
+        flash(f"You found {number} matching flights.", 'success')
+    else:
+        flash("No matching flights, search again", 'danger')
     return render_template('search_results.html', title='Find a Flight')
