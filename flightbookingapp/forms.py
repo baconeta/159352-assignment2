@@ -1,12 +1,19 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
 from wtforms_sqlalchemy.fields import QuerySelectField
+from wtforms.fields import DateField
 from flightbookingapp.models import Customer, Airport
 
 
 def airports():
     return Airport.query.all()
+
+
+def validate_email(email):
+    customer = Customer.query.filter_by(email=email.data).first()
+    if customer:
+        raise ValidationError('Email address is already registered.')
 
 
 class RegistrationForm(FlaskForm):
@@ -17,11 +24,6 @@ class RegistrationForm(FlaskForm):
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), Length(min=6, max=40), EqualTo('password')])
     submit = SubmitField('Register')
-
-    def validate_email(self, email):
-        customer = Customer.query.filter_by(email=email.data).first()
-        if customer:
-            raise ValidationError('Email address is already registered.')
 
 
 class LoginForm(FlaskForm):
@@ -35,13 +37,12 @@ class BookingForm(FlaskForm):
     fly_from = QuerySelectField('From', query_factory=airports, allow_blank=False)
     fly_to = QuerySelectField('To', query_factory=airports, allow_blank=False)
     tickets = IntegerField('Tickets', validators=[NumberRange(min=1, max=6, message="Select between 1 and 6 tickets.")])
-    # calendar =
+    calendar = DateField('Flight date', validators=[DataRequired(message="Choose a date to fly")])
     submit = SubmitField('Search')
 
-    # TODO add validator for tickets number
-    def validate_airports(self, fly_from, fly_to):
-        if fly_to == " " or fly_from == " ":
-            raise ValidationError('Select an airport')
+    def validate_fly_to(self, fly_to):
+        if fly_to.data == self.fly_from.data:
+            raise ValidationError('You can\'t fly to and from the same airport.')
 
 
 class FindBookingForm(FlaskForm):
@@ -50,4 +51,3 @@ class FindBookingForm(FlaskForm):
     submit = SubmitField('Find Booking')
 
     # TODO add validator to find a booking
-

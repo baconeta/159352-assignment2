@@ -59,18 +59,15 @@ def logout():
 
 @app.route('/booking', methods=['GET', 'POST'])
 def booking():
-    # airports = Airport.query.all()
     form = BookingForm()
     if form.validate_on_submit():
         fly_from = form.fly_from.data.int_code
         fly_to = form.fly_to.data.int_code
         tickets = form.tickets.data
-        print("You are searching for bookings from " + fly_from + " to " + fly_to)
-        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets))
-    # for airport in airports:
-    #     form.fly_from.choices.append(airport.name + ": " + airport.int_code)
-    #     form.fly_to.choices.append(airport.name + ": " + airport.int_code)
-    return render_template('booking.html', title='Book a flight', form=form)  # , airports=airports)
+        calendar = form.calendar.data
+        print("You are searching for bookings from " + fly_from + " to " + fly_to + " on " + str(calendar))
+        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
+    return render_template('booking.html', title='Book a flight', form=form)
 
 
 @app.route('/customer')
@@ -108,7 +105,7 @@ def bookings():
                            user_bookings=user_bookings, departures=departures, form=form)
 
 
-@app.route('/search_results/<fly_from>&<fly_to>&<tickets>')
-def search_results(fly_from, fly_to, tickets):
+@app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>')
+def search_results(fly_from, fly_to, tickets, date):
     # TODO handle finding correct flights
     return render_template('search_results.html', title='Find a Flight')

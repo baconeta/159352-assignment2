@@ -12,6 +12,7 @@
         <h2 class="bookings-heading"> Search for a booking </h2>
     {% endif %}
 <form method="POST" action="">
+    {{ form.csrf_token }}
     {{ form.hidden_tag() }}
     <fieldset class="form-row">
         <div class="form-group col-md-5">
