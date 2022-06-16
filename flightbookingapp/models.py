@@ -67,6 +67,7 @@ class Departure(db.Model):
     stopover_date = db.Column(db.DateTime)
     arrival_date = db.Column(db.DateTime, nullable=False)
     price = db.Column(db.Float, nullable=False, default=0.00)
+    booked_seats = db.Column(db.Integer, nullable=False, default=0)
 
     def __repr__(self):
         return f"Departure('{self.flight_number}', '{self.date.date()}', '{self.price}')"

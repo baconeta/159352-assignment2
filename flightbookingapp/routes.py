@@ -62,7 +62,11 @@ def booking():
     # airports = Airport.query.all()
     form = BookingForm()
     if form.validate_on_submit():
-        print("You are searching for bookings from " + form.fly_from.data.int_code + " to " + form.fly_to.data.int_code)
+        fly_from = form.fly_from.data.int_code
+        fly_to = form.fly_to.data.int_code
+        tickets = form.tickets.data
+        print("You are searching for bookings from " + fly_from + " to " + fly_to)
+        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets))
     # for airport in airports:
     #     form.fly_from.choices.append(airport.name + ": " + airport.int_code)
     #     form.fly_to.choices.append(airport.name + ": " + airport.int_code)
@@ -102,3 +106,9 @@ def bookings():
 
     return render_template('bookings.html', title='Bookings', loggedin=current_user.is_authenticated,
                            user_bookings=user_bookings, departures=departures, form=form)
+
+
+@app.route('/search_results/<fly_from>&<fly_to>&<tickets>')
+def search_results(fly_from, fly_to, tickets):
+    # TODO handle finding correct flights
+    return render_template('search_results.html', title='Find a Flight')
