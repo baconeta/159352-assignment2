@@ -108,6 +108,10 @@ def bookings():
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
 def search_results(fly_from, fly_to, tickets, date):
+    if request.method == 'POST':
+        if request.form.get('book') == 'Book this flight':
+            return redirect(
+                url_for('book', tickets=request.form.get('tickets'), departure=request.form.get('departure')))
     matches = find_matching_flights(date, fly_from, fly_to, tickets)
 
     form = BookingForm()
@@ -121,6 +125,15 @@ def search_results(fly_from, fly_to, tickets, date):
     return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form)
 
 
+@app.route('/book/<tickets>&<departure>', methods=['GET', 'POST'])
+def book(tickets, departure):
+    flight = Departure.query.filter_by(id=departure).first()
+    route = Route.query.filter_by(flight_code=flight.flight_number).first()
+    dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
+    arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
+    return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
+
+
 def find_matching_flights(date, fly_from, fly_to, tickets):
     matches = {}
     for flight in Departure.query.filter_by(depart_date=date).all():
@@ -132,7 +145,6 @@ def find_matching_flights(date, fly_from, fly_to, tickets):
 
 
 def search_result_flashes(matches):
-    print("hi")
     if len(matches) > 1:
         flash(f"You found {len(matches)} matching flights.", 'success')
     elif len(matches) == 1:

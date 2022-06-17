@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="content-section">
+        <div class="media">
+            <div class="media-body">
+                <p>You are booking flight {{ flight.flight_number }}.<br>
+                    It leaves {{ dep.name }} at {{ route.depart_time }} on {{ flight.depart_date }} ({{ dep.timezone }}
+                    time).<br>
+                    It arrives to {{ arr.name }} at {{ route.arrive_time }} on {{ flight.arrival_date }}
+                    ({{ arr.timezone }}
+                    time).<br>
+                    You are booking {{ tickets }} seats.<br></p></div>
+        </div>
+    </div>
+{% endblock content %}
