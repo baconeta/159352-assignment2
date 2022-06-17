@@ -1,4 +1,6 @@
 import datetime
+import time
+
 from dateutil import parser
 
 from flightbookingapp import app, db, bcrypt
@@ -111,14 +113,14 @@ def bookings():
 def search_results(fly_from, fly_to, tickets, date):
     matches = find_matching_flights(date, fly_from, fly_to, tickets)
 
-    search_result_flashes(matches)
-
     form = BookingForm()
     if form.validate_on_submit():
         calendar, fly_from, fly_to, tickets = grab_search_data(form)
         return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
     else:
         fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
+        
+    search_result_flashes(matches)
     return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form)
 
 
@@ -133,12 +135,13 @@ def find_matching_flights(date, fly_from, fly_to, tickets):
 
 
 def search_result_flashes(matches):
+    print("hi")
     if len(matches) > 1:
         flash(f"You found {len(matches)} matching flights.", 'success')
     elif len(matches) == 1:
-        flash(f"You found {len(matches)} matching flights.", 'success')
+        flash(f"You found 1 matching flight.", 'success')
     else:
-        flash("No matching flights, search again", 'danger')
+        flash("No matching flights, search again.", 'danger')
 
 
 def grab_search_data(form):

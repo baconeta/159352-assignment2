@@ -13,10 +13,13 @@
                                 at {{ bookable[flight].depart_time }} local time.<br>
                                 Arrive at {{ bookable[flight].arrive_airport }} on {{ flight.arrival_date }}
                                 at {{ bookable[flight].arrive_time }} local time.</p>
+                            <form>
+                                <input value="Book this flight" type="submit" class="btn btn-outline-info">
+                            </form>
                         </div>
                     {% endfor %}
                 {% else %}
-                    <h3>No available flights? LOL</h3>
+                    <h4>Nothing matches your search criteria.</h4>
                 {% endif %}
             </div>
         </div>
