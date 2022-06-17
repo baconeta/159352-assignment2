@@ -1,4 +1,25 @@
 {% extends "layout.html" %}
 {% block content %}
+    {% include 'book_flight_form.html' %}
+    <h2 class="account-heading"> Available flights </h2>
+    <div class="content-section">
+        <div class="media">
+            <div class="media-body">
+                {% if bookable != {} %}
+                    {% for flight in bookable %}
+                        <div class="content-section">
+                            <h3>Flight {{ flight.flight_number }}</h3>
+                            <p>Depart from {{ bookable[flight].depart_airport }} on {{ flight.depart_date }}
+                                at {{ bookable[flight].depart_time }} local time.<br>
+                                Arrive at {{ bookable[flight].arrive_airport }} on {{ flight.arrival_date }}
+                                at {{ bookable[flight].arrive_time }} local time.</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <h3>No available flights? LOL</h3>
+                {% endif %}
+            </div>
+        </div>
+    </div>
     {# TODO handle displaying any found flights including some way to choose next or previous days #}
 {% endblock content %}

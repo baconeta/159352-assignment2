@@ -71,4 +71,4 @@ class Departure(db.Model):
     booked_seats = db.Column(db.Integer, nullable=False, default=0)
 
     def __repr__(self):
-        return f"Departure('{self.flight_number}', '{self.date.date()}', '{self.price}')"
+        return f"Departure('{self.flight_number}', '{self.depart_date}', '{self.price}')"

@@ -1,3 +1,6 @@
+import datetime
+from dateutil import parser
+
 from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
@@ -65,7 +68,6 @@ def booking():
         fly_to = form.fly_to.data.int_code
         tickets = form.tickets.data
         calendar = form.calendar.data
-        print("You are searching for bookings from " + fly_from + " to " + fly_to + " on " + str(calendar))
         return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
     return render_template('booking.html', title='Book a flight', form=form)
 
@@ -105,11 +107,50 @@ def bookings():
                            user_bookings=user_bookings, departures=departures, form=form)
 
 
-@app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>')
+@app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
 def search_results(fly_from, fly_to, tickets, date):
-    number = 0  # TODO make this actually work, lol
-    if number != 0:
-        flash(f"You found {number} matching flights.", 'success')
+    matches = find_matching_flights(date, fly_from, fly_to, tickets)
+
+    search_result_flashes(matches)
+
+    form = BookingForm()
+    if form.validate_on_submit():
+        calendar, fly_from, fly_to, tickets = grab_search_data(form)
+        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
+    else:
+        fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
+    return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form)
+
+
+def find_matching_flights(date, fly_from, fly_to, tickets):
+    matches = {}
+    for flight in Departure.query.filter_by(depart_date=date).all():
+        route = Route.query.filter_by(flight_code=flight.flight_number).first()
+        avail_tickets = Aircraft.query.filter_by(id=route.plane).first().seats
+        if route.depart_airport == fly_from and route.arrive_airport == fly_to and avail_tickets >= int(tickets):
+            matches[flight] = route
+    return matches
+
+
+def search_result_flashes(matches):
+    if len(matches) > 1:
+        flash(f"You found {len(matches)} matching flights.", 'success')
+    elif len(matches) == 1:
+        flash(f"You found {len(matches)} matching flights.", 'success')
     else:
         flash("No matching flights, search again", 'danger')
-    return render_template('search_results.html', title='Find a Flight')
+
+
+def grab_search_data(form):
+    fly_from = form.fly_from.data.int_code
+    fly_to = form.fly_to.data.int_code
+    tickets = form.tickets.data
+    calendar = form.calendar.data
+    return calendar, fly_from, fly_to, tickets
+
+
+def fill_booking_form_fields(date, fly_from, fly_to, form, tickets):
+    form.tickets.data = tickets
+    form.fly_from.data = Airport.query.filter_by(int_code=fly_from).first()
+    form.fly_to.data = Airport.query.filter_by(int_code=fly_to).first()
+    form.calendar.data = parser.parse(date)
