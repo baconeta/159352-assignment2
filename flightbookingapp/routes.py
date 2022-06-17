@@ -1,13 +1,10 @@
-import datetime
-import time
-
 from dateutil import parser
+from flask import render_template, redirect, url_for, flash, request
+from flask_login import login_user, current_user, logout_user, login_required
 
 from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, current_user, logout_user, login_required
 
 
 @app.route('/')
@@ -119,7 +116,7 @@ def search_results(fly_from, fly_to, tickets, date):
         return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
     else:
         fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
-        
+
     search_result_flashes(matches)
     return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form)
 
