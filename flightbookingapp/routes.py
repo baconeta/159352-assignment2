@@ -41,6 +41,7 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        # TODO handle if user has account already
         hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
         new_customer = Customer(first_name=form.firstname.data,
                                 last_name=form.lastname.data,
@@ -131,7 +132,23 @@ def book(tickets, departure):
     route = Route.query.filter_by(flight_code=flight.flight_number).first()
     dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
     arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
+
+    if request.method == "POST" and request.form.get('confirm') == 'Confirm booking':
+        # TODO handle not logged in user (will need a form and a login option)
+        if current_user.is_authenticated:
+            save_booking(flight, tickets, current_user.id)
+            flash("Booking successful.", "success")
+            return redirect(url_for('home'))
+
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
+
+
+def save_booking(flight, tickets, customer_number):
+    booking_ref = generate_booking_ref()
+    new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id)
+    db.session.add(new_booking)
+    flight.booked_seats += int(tickets)
+    db.session.commit()
 
 
 def find_matching_flights(date, fly_from, fly_to, tickets):
@@ -166,3 +183,8 @@ def fill_booking_form_fields(date, fly_from, fly_to, form, tickets):
     form.fly_from.data = Airport.query.filter_by(int_code=fly_from).first()
     form.fly_to.data = Airport.query.filter_by(int_code=fly_to).first()
     form.calendar.data = parser.parse(date)
+
+
+def generate_booking_ref():
+    # TODO make this randomly generate
+    return "AHHT55"

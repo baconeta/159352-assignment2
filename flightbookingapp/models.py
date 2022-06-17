@@ -56,9 +56,10 @@ class Booking(db.Model):
     booking_ref = db.Column(db.VARCHAR(6), primary_key=True, nullable=False, unique=True)
     customer = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
     flight = db.Column(db.Integer, db.ForeignKey('departure.id'), nullable=False)
+    tickets = db.Column(db.Integer, default=1)
 
     def __repr__(self):
-        return f"Booking('{self.booking_ref}', '{self.customer.__repr__()}', '{self.flight.__repr__()}')"
+        return f"'{self.tickets}' for booking('{self.booking_ref}', '{self.customer.__repr__()}', '{self.flight.__repr__()}')"
 
 
 class Departure(db.Model):
