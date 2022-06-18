@@ -9,9 +9,11 @@
                 {% if current_user.phone_number == None %}
                     <small class="text-secondary">No phone number provided</small>
                     <p class="text-secondary">Click here to add a phone number to your account.</p>
+                    {# TODO allow user to add a phone number? #}
                 {% else %}
                     <p class="text-secondary">{{ current_user.phone_number }}</p>
                     <p>Click here to update your phone number.</p>
+                    {# TODO allow user to update their phone number? #}
                 {% endif %}
             </div>
         </div>

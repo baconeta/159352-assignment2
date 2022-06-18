@@ -8,6 +8,8 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 
+# Make this entire code significantly more optimised and tidy
+
 
 @app.route('/')
 @app.route('/home')
