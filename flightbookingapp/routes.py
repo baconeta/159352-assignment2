@@ -2,6 +2,7 @@ from dateutil import parser
 import random
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy.exc import SQLAlchemyError
 
 from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
@@ -73,9 +74,14 @@ def booking():
     return render_template('booking.html', title='Book a flight', form=form)
 
 
-@app.route('/customer')
+@app.route('/customer', methods=['GET', 'POST'])
 @login_required
 def customer():
+    # booking cancellation
+    if request.method == "POST" and request.form.get('cancel') == 'Cancel booking':
+        cancel_booking(request.form.get('booking'))
+        return redirect(url_for('customer'))
+
     user_bookings = current_user.bookings
     departures = Departure.query.all()
     return render_template('customer.html', title='My Account', bookings=user_bookings, departures=departures)
@@ -83,6 +89,12 @@ def customer():
 
 @app.route('/bookings', methods=['GET', 'POST'])
 def bookings():
+    # booking cancellation
+    if request.method == "POST" and request.form.get('cancel') == 'Cancel booking':
+        cancel_booking(request.form.get('booking'))
+        return redirect(url_for('bookings'))
+
+    # find a booking functions
     form = FindBookingForm()
     if form.validate_on_submit():
         find_booking = Booking.query.filter_by(booking_ref=form.booking_ref.data).first()
@@ -98,6 +110,8 @@ def bookings():
             pass
         if find_booking:
             return redirect(url_for('home'))
+
+    # prepare to show user bookings
     user_bookings = []
     departures = []
     if current_user.is_authenticated:
@@ -202,3 +216,17 @@ def new_code():
     for x in range(3):
         new_booking_ref += str(random.randint(0, 9))
     return new_booking_ref
+
+
+def cancel_booking(booking_ref):
+    booking_to_cancel = Booking.query.filter_by(booking_ref=booking_ref).first()
+    try:
+        db.session.delete(booking_to_cancel)
+        db.session.commit()
+        print('deleted')
+        flash(
+            "Booking " + booking_ref + " cancelled successfully. You will receive a refund for any funds paid in the next 2-3 business days.",
+            "success")
+    except SQLAlchemyError:
+        print('failed')
+        flash("Something went wrong cancelling this booking.", "danger")

@@ -10,6 +10,7 @@
                 {# TODO make this way prettier#}
                 {% for booking in bookings %}
                     <div class="content-section">
+                    <form method="post" action="">
                         <h2>Booking reference {{ booking.booking_ref.upper() }}</h2>
                         {% for departure in departures %}
                             {% if departure.id == booking.flight %}
@@ -17,10 +18,13 @@
                                 <h4>Departure time: {{ departure.depart_date }}</h4>
                             {% endif %}
                         {% endfor %}
-                        {# TODO Add cancel booking here #}
+                        <input type="hidden" name="booking" value={{ booking.booking_ref.upper() }}>
+                        <input type="submit" value="Cancel booking" name="cancel" class="btn btn-outline-info">
                         {# TODO Make significantly more information and pretty #}
                         {# TODO Add check for past bookings here #}
                         {# TODO Add arrival time and timezones #}
+                    </form>
+
                     </div>
                 {% endfor %}
 
