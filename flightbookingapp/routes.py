@@ -1,4 +1,5 @@
 from dateutil import parser
+import random
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -186,5 +187,18 @@ def fill_booking_form_fields(date, fly_from, fly_to, form, tickets):
 
 
 def generate_booking_ref():
-    # TODO make this randomly generate
-    return "AHHT55"
+    new_booking_ref = new_code()
+
+    while Booking.query.filter_by(booking_ref=new_booking_ref).first() is not None:
+        new_booking_ref = new_code()
+
+    return new_booking_ref
+
+
+def new_code():
+    new_booking_ref = ""
+    for x in range(3):
+        new_booking_ref += chr(random.randint(ord('A'), ord('Z')))
+    for x in range(3):
+        new_booking_ref += str(random.randint(0, 9))
+    return new_booking_ref
