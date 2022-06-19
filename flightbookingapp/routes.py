@@ -13,8 +13,16 @@ from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking,
 
 @app.route('/')
 @app.route('/home')
+@app.route('/booking', methods=['GET', 'POST'])
 def home():
-    return render_template('index.html')
+    form = BookingForm()
+    if form.validate_on_submit():
+        fly_from = form.fly_from.data.int_code
+        fly_to = form.fly_to.data.int_code
+        tickets = form.tickets.data
+        calendar = form.calendar.data
+        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
+    return render_template('index.html', title='Book a flight', form=form)
 
 
 @app.route('/about')
@@ -62,18 +70,6 @@ def register():
 def logout():
     logout_user()
     return redirect(url_for('home'))
-
-
-@app.route('/booking', methods=['GET', 'POST'])
-def booking():
-    form = BookingForm()
-    if form.validate_on_submit():
-        fly_from = form.fly_from.data.int_code
-        fly_to = form.fly_to.data.int_code
-        tickets = form.tickets.data
-        calendar = form.calendar.data
-        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
-    return render_template('booking.html', title='Book a flight', form=form)
 
 
 @app.route('/customer', methods=['GET', 'POST'])
