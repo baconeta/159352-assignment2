@@ -1,4 +1,5 @@
 import datetime
+import webbrowser
 
 from dateutil import parser
 import random
@@ -109,9 +110,7 @@ def bookings():
         if find_booking:
             booking_customer = Customer.query.filter_by(id=find_booking.customer).first()
             if form.surname.data.upper() == booking_customer.last_name.upper():
-                print("Booking Found")
-                # TODO open to the invoice page ?
-                pass
+                return redirect(url_for('invoice', booking_ref=find_booking.booking_ref))
         else:
             flash("No matching booking found.", "info")
         if find_booking:
@@ -164,10 +163,13 @@ def book(tickets, departure):
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
 
 
-@app.route('/invoice')
-def invoice():
-    today = datetime.date.today().strftime("%d %B, %Y")
-    return render_template('invoice.html', date=today)
+@app.route('/invoice/<booking_ref>')
+def invoice(booking_ref):
+    booking = Booking.query.filter_by(booking_ref=booking_ref).first()
+    booker = Customer.query.filter_by(id=booking.customer).first()
+    departure = Departure.query.filter_by(id=booking.flight).first()
+    date = departure.depart_date
+    return render_template('invoice.html', booking_ref=booking_ref, date=date, customer=booker)
 
 
 def save_booking(flight, tickets, customer_number):

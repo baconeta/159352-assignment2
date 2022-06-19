@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>A simple, clean, and responsive HTML invoice template</title>
+    <title>Booking {{ booking_ref }}</title>
 
     <style>
         .invoice-box {
@@ -117,9 +117,8 @@
                         </td>
 
                         <td>
-                            Invoice #: 123<br/>
+                            Booking: {{ booking_ref }}<br/>
                             Created: January 1, 2015<br/>
-                            Due: February 1, 2015
                         </td>
                     </tr>
                 </table>
@@ -131,15 +130,8 @@
                 <table>
                     <tr>
                         <td>
-                            Sparksuite, Inc.<br/>
-                            12345 Sunny Road<br/>
-                            Sunnyville, CA 12345
-                        </td>
-
-                        <td>
-                            Acme Corp.<br/>
-                            John Doe<br/>
-                            john@example.com
+                            {{ customer.first_name }} {{ customer.last_name }}<br/>
+                            {{ customer.email }}
                         </td>
                     </tr>
                 </table>
