@@ -8,11 +8,12 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 
+
 # Make this entire code significantly more optimised and tidy
 
 
-@app.route('/')
-@app.route('/home')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
 @app.route('/booking', methods=['GET', 'POST'])
 def home():
     form = BookingForm()
@@ -53,16 +54,24 @@ def register():
         return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        # TODO handle if user has account already
-        hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        new_customer = Customer(first_name=form.firstname.data,
-                                last_name=form.lastname.data,
-                                email=form.email.data,
-                                password=hashed_password)
-        db.session.add(new_customer)
-        db.session.commit()
-        flash(f"Welcome to Kulta Air, {form.firstname.data}. You can now login.", 'success')
+        if Customer.query.filter_by(email=form.email.data).first() is not None:
+            # Customer already has an account
+            flash(f"A user already exists with that email address. Login to your account below.", 'danger')
+        else:
+            try:
+                hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+                new_customer = Customer(first_name=form.firstname.data,
+                                        last_name=form.lastname.data,
+                                        email=form.email.data,
+                                        password=hashed_password)
+                db.session.add(new_customer)
+                db.session.commit()
+                flash(f"Welcome to Kulta Air, {form.firstname.data}. You can now login.", 'success')
+            except SQLAlchemyError:
+                flash("Something went wrong. See administrator for details", "danger")
+                return render_template('register.html', title='Register', form=form)
         return redirect(url_for('login'))
+
     return render_template('register.html', title='Register', form=form)
 
 
