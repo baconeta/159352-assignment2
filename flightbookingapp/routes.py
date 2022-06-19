@@ -1,8 +1,11 @@
+import datetime
+
 from dateutil import parser
 import random
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
+from weasyprint import HTML
 
 from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
@@ -159,6 +162,12 @@ def book(tickets, departure):
             return redirect(url_for('home'))
 
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
+
+
+@app.route('/invoice')
+def invoice():
+    today = datetime.date.today().strftime("%d %B, %Y")
+    return render_template('invoice.html', date=today)
 
 
 def save_booking(flight, tickets, customer_number):
