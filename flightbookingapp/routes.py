@@ -1,6 +1,3 @@
-import datetime
-import webbrowser
-
 from dateutil import parser
 import random
 from flask import render_template, redirect, url_for, flash, request
@@ -11,6 +8,11 @@ from weasyprint import HTML
 from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
+
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html")
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -106,11 +108,12 @@ def bookings():
     # find a booking functions
     form = FindBookingForm()
     if form.validate_on_submit():
-        find_booking = Booking.query.filter_by(booking_ref=form.booking_ref.data).first()
+        find_booking = Booking.query.filter_by(booking_ref=form.booking_ref.data.upper()).first()
         if find_booking:
             booking_customer = Customer.query.filter_by(id=find_booking.customer).first()
             if form.surname.data.upper() == booking_customer.last_name.upper():
-                return redirect(url_for('invoice', booking_ref=find_booking.booking_ref))
+                return redirect(url_for('invoice', booking_ref=find_booking.booking_ref,
+                                        surname=booking_customer.last_name.upper()))
         else:
             flash("No matching booking found.", "info")
         if find_booking:
@@ -156,20 +159,27 @@ def book(tickets, departure):
     if request.method == "POST" and request.form.get('confirm') == 'Confirm booking':
         # TODO handle not logged in user (will need a form and a login option)
         if current_user.is_authenticated:
-            save_booking(flight, tickets, current_user.id)
-            flash("Booking successful.", "success")
-            return redirect(url_for('home'))
+            booking_ref = save_booking(flight, tickets, current_user.id)
+            return redirect(url_for('invoice', booking_ref=booking_ref, surname=current_user.last_name.upper()))
 
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
 
 
-@app.route('/invoice/<booking_ref>')
-def invoice(booking_ref):
-    booking = Booking.query.filter_by(booking_ref=booking_ref).first()
-    booker = Customer.query.filter_by(id=booking.customer).first()
-    departure = Departure.query.filter_by(id=booking.flight).first()
-    date = departure.depart_date
-    return render_template('invoice.html', booking_ref=booking_ref, date=date, customer=booker)
+@app.route('/invoice/<booking_ref>/<surname>')
+def invoice(booking_ref, surname):
+    try:
+        booking = Booking.query.filter_by(booking_ref=booking_ref).first()
+        booker = Customer.query.filter_by(id=booking.customer).first()
+        if booker.last_name.upper() != surname.upper():
+            return render_template('404.html')
+        departure = Departure.query.filter_by(id=booking.flight).first()
+        date = departure.depart_date
+        return render_template('invoice.html', booking_ref=booking_ref, date=date, customer=booker)
+    except SQLAlchemyError:
+        flash(
+            "Something went wrong grabbing your invoice. Please call our helpdesk on 555-1010 during business hours for support.",
+            "danger")
+        return render_template(url_for('home'))
 
 
 def save_booking(flight, tickets, customer_number):
@@ -178,6 +188,7 @@ def save_booking(flight, tickets, customer_number):
     db.session.add(new_booking)
     flight.booked_seats += int(tickets)
     db.session.commit()
+    return booking_ref
 
 
 def find_matching_flights(date, fly_from, fly_to, tickets):
@@ -234,11 +245,12 @@ def new_code():
 
 def cancel_booking(booking_ref):
     booking_to_cancel = Booking.query.filter_by(booking_ref=booking_ref).first()
+    # TODO don't allow past bookings to be cancelled
     try:
         db.session.delete(booking_to_cancel)
         db.session.commit()
         flash(
-            "Booking " + booking_ref + " cancelled successfully. You will receive a refund for any funds paid in the next 2-3 business days.",
+            "Booking " + booking_ref + " cancelled successfully.",
             "success")
     except SQLAlchemyError:
         flash("Something went wrong cancelling this booking.", "danger")
