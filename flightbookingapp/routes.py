@@ -9,9 +9,6 @@ from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 
 
-# Make this entire code significantly more optimised and tidy
-
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/home', methods=['GET', 'POST'])
 @app.route('/booking', methods=['GET', 'POST'])
@@ -56,14 +53,15 @@ def register():
     if form.validate_on_submit():
         if Customer.query.filter_by(email=form.email.data).first() is not None:
             # Customer already has an account
-            flash(f"A user already exists with that email address. Login to your account below.", 'danger')
+            flash(f"A user already exists with that email address. Login to your account below.", 'info')
         else:
             try:
                 hashed_password = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-                new_customer = Customer(first_name=form.firstname.data,
-                                        last_name=form.lastname.data,
-                                        email=form.email.data,
-                                        password=hashed_password)
+                new_customer = Customer()
+                new_customer.first_name = form.firstname.data
+                new_customer.last_name = form.lastname.data
+                new_customer.email = form.email.data
+                new_customer.password = hashed_password
                 db.session.add(new_customer)
                 db.session.commit()
                 flash(f"Welcome to Kulta Air, {form.firstname.data}. You can now login.", 'success')
@@ -112,9 +110,7 @@ def bookings():
                 # TODO open to the invoice page ?
                 pass
         else:
-            print("No Booking Found")
-            # TODO Warn customer that no booking was found with those details
-            pass
+            flash("No matching booking found.", "info")
         if find_booking:
             return redirect(url_for('home'))
 
@@ -189,7 +185,7 @@ def search_result_flashes(matches):
     elif len(matches) == 1:
         flash(f"You found 1 matching flight.", 'success')
     else:
-        flash("No matching flights, search again.", 'danger')
+        flash("No matching flights, search again.", 'info')
 
 
 def grab_search_data(form):
@@ -230,10 +226,8 @@ def cancel_booking(booking_ref):
     try:
         db.session.delete(booking_to_cancel)
         db.session.commit()
-        print('deleted')
         flash(
             "Booking " + booking_ref + " cancelled successfully. You will receive a refund for any funds paid in the next 2-3 business days.",
             "success")
     except SQLAlchemyError:
-        print('failed')
         flash("Something went wrong cancelling this booking.", "danger")
