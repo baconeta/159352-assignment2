@@ -1,12 +1,11 @@
 {% extends "layout.html" %}
 {% block content %}
     {% if loggedin %}
-        <h1 class="bookings-heading"> Bookings </h1>
-        {% with departures=departures, bookings=user_bookings %}
+        {% with bookings=user_bookings %}
             {% include 'upcoming_bookings.html' %}
         {% endwith %}
         <div class="content-section">
-        <h3 class="bookings-heading"> Missing a booking? Add it manually.</h3>
+        <h3 class="bookings-heading"> Missing a booking? Find it manually.</h3>
     {% else %}
         <div class="content-section">
         <h2 class="bookings-heading"> Search for a booking </h2>

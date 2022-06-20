@@ -2,29 +2,29 @@
     <div class="media">
         <div class="media-body">
             <h2 class="bookings-heading">Upcoming bookings</h2>
-            {% if bookings == [] %}
-                <p class="text-secondary"><a class="ml-2" href="{{ url_for('booking') }}">You have no upcoming bookings.
+            {% if bookings == {} %}
+                <p class="text-secondary"><a class="ml-2" href="{{ url_for('home') }}">You have no upcoming bookings.
                     Click here to make one!</a></p>
             {% else %}
                 <br>
-                {# TODO make this way prettier #}
-                {% for booking in bookings %}
+                {% for booking, details in bookings.items() %}
                     <div class="content-section">
                         <form method="post" action="">
-                            <h2>Booking reference {{ booking.booking_ref.upper() }}</h2>
-                            {% for departure in departures %}
-                                {% if departure.id == booking.flight %}
-                                    <h3>Flight {{ departure.flight_number }}</h3>
-                                    <h4>Departure time: {{ departure.depart_date }}</h4>
-                                {% endif %}
-                            {% endfor %}
-                            <input type="hidden" name="booking" value={{ booking.booking_ref.upper() }}>
+                            <h3 class="text-primary">Booking reference {{ booking.upper() }}</h3>
+                            <h5>Flight {{ details[1].flight_number }} flying from {{ details[3].name }}
+                                to {{ details[4].name }}</h5>
+                            <br>
+                            <h5>Departure: {{ (details[1].depart_date).strftime("%a %d %B") }} at
+                                {{ details[2].depart_time }} {{ details[3].timezone }}</h5>
+                            <h5>Arrival: {{ (details[1].arrival_date).strftime("%a %d %B") }} at
+                                {{ details[2].arrive_time }} {{ details[4].timezone }}</h5>
+                            <h5>Tickets: {{ details[0].tickets }}</h5>
+                            <input type="hidden" name="booking" value={{ booking.upper() }}>
                             <input type="submit" value="View invoice" name="view" class="btn btn-outline-info">
                             <input type="submit" value="Cancel booking" name="cancel" class="btn btn-outline-info">
 
                             {# TODO Make significantly more information and pretty #}
                             {# TODO Add check for past bookings here #}
-                            {# TODO Add arrival time and timezones #}
                             {# TODO Add stopovers #}
                         </form>
 

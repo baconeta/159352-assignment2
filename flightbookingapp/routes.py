@@ -96,9 +96,8 @@ def customer():
         if request.form.get('view') == 'View invoice':
             return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
 
-    user_bookings = current_user.bookings
-    departures = Departure.query.all()
-    return render_template('customer.html', title='My Account', bookings=user_bookings, departures=departures)
+    flight_info = collect_user_bookings()
+    return render_template('customer.html', title='My Account', bookings=flight_info)
 
 
 @app.route('/bookings', methods=['GET', 'POST'])
@@ -110,7 +109,7 @@ def bookings():
         if request.form.get('view') == 'View invoice':
             return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
 
-    # find a booking functions
+    # Find a booking functions
     form = FindBookingForm()
     if form.validate_on_submit():
         find_booking = Booking.query.filter_by(booking_ref=form.booking_ref.data.upper()).first()
@@ -125,14 +124,23 @@ def bookings():
             return redirect(url_for('home'))
 
     # prepare to show user bookings
-    user_bookings = []
-    departures = []
+    flight_info = {}
     if current_user.is_authenticated:
-        user_bookings = current_user.bookings
-        departures = Departure.query.all()
+        flight_info = collect_user_bookings()
 
     return render_template('bookings.html', title='Bookings', loggedin=current_user.is_authenticated,
-                           user_bookings=user_bookings, departures=departures, form=form)
+                           user_bookings=flight_info, form=form)
+
+
+def collect_user_bookings():
+    flight_info = {}
+    for booking in current_user.bookings:
+        departure = Departure.query.filter_by(id=booking.flight).first()
+        route = Route.query.filter_by(flight_code=departure.flight_number).first()
+        dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
+        arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
+        flight_info[booking.booking_ref] = [booking, departure, route, dep_airport, arr_airport]
+    return flight_info
 
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
@@ -216,9 +224,12 @@ def save_booking(flight, tickets, customer_number):
     booking_ref = ""
     try:
         booking_ref = generate_booking_ref()
-        new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id)
+        new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id, tickets=tickets)
         db.session.add(new_booking)
         flight.booked_seats += int(tickets)
+
+        handle_stopover_pathings(flight, tickets)
+
         db.session.commit()
         flash("Your booking has been confirmed.", "success")
     except SQLAlchemyError:
@@ -226,6 +237,25 @@ def save_booking(flight, tickets, customer_number):
             "Something went wrong making your booking. Please call our helpdesk on 07-555-1010 during business hours for support.",
             "danger")
     return booking_ref
+
+
+def handle_stopover_pathings(flight, tickets, cancel=False):
+    route = Route.query.filter_by(flight_code=flight.flight_number).first()
+    if route.stopover_airport is not None:
+        stopover_route = route.flight_code + "-R"
+        stopover_flight = Departure.query.filter_by(flight_number=stopover_route,
+                                                    depart_date=flight.depart_date).first()
+        if cancel:
+            stopover_flight.booked_seats -= int(tickets)
+        else:
+            stopover_flight.booked_seats += int(tickets)
+    if "-R" in flight.flight_number:
+        origin_route = route.flight_code[:-2]
+        origin_flight = Departure.query.filter_by(flight_number=origin_route, depart_date=flight.depart_date).first()
+        if cancel:
+            origin_flight.booked_seats -= int(tickets)
+        else:
+            origin_flight.booked_seats += int(tickets)
 
 
 def find_matching_flights(date, fly_from, fly_to, tickets):
@@ -278,6 +308,9 @@ def cancel_booking(booking_ref):
         tickets = booking_to_cancel.tickets
         departure = Departure.query.filter_by(id=booking_to_cancel.flight).first()
         departure.booked_seats = departure.booked_seats - tickets
+
+        handle_stopover_pathings(departure, tickets, True)
+
         db.session.delete(booking_to_cancel)
         db.session.commit()
         flash("Booking " + booking_ref + " cancelled successfully.", "success")
