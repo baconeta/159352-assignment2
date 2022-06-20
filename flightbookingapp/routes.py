@@ -1,4 +1,5 @@
 from dateutil import parser
+from datetime import timedelta
 import random
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, login_required
@@ -136,21 +137,35 @@ def bookings():
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
 def search_results(fly_from, fly_to, tickets, date):
+    matches = find_matching_flights(date, fly_from, fly_to, tickets)
+
+    today = parser.parse(date)
+
+    dates = [today - timedelta(3), today - timedelta(2), today - timedelta(1), today, today + timedelta(1),
+             today + timedelta(2), today + timedelta(3)]
+
     if request.method == 'POST':
         if request.form.get('book') == 'Book this flight':
             return redirect(
                 url_for('book', tickets=request.form.get('tickets'), departure=request.form.get('departure')))
-    matches = find_matching_flights(date, fly_from, fly_to, tickets)
+
+        if request.form.get('search') == 'Search':
+            return redirect(
+                url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets,
+                        date=request.form.get('date'),
+                        dates=dates))
 
     form = BookingForm()
     if form.validate_on_submit():
         calendar, fly_from, fly_to, tickets = grab_search_data(form)
-        return redirect(url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar))
+
+        return redirect(
+            url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar, dates=dates))
     else:
         fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
 
     search_result_flashes(matches)
-    return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form)
+    return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form, dates=dates)
 
 
 @app.route('/book/<tickets>&<departure>', methods=['GET', 'POST'])

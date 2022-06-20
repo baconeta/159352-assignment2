@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block content %}
+
     {% include 'search_flight_form.html' %}
+
+    {% include 'date_cards.html' %}
+
     <h2 class="account-heading"> Available flights </h2>
     <div class="content-section">
         <div class="media">
@@ -14,6 +18,7 @@
                                     at {{ bookable[flight].depart_time }} local time.<br>
                                     Arrive at {{ bookable[flight].arrive_airport }} on {{ flight.arrival_date }}
                                     at {{ bookable[flight].arrive_time }} local time.</p>
+                                {# TODO show price #}
                                 <input type="hidden" name="departure" value={{ flight.id }}>
                                 <input type="hidden" name="tickets" value={{ form.tickets.data }}>
                                 <input value="Book this flight" type="submit" class="btn btn-outline-info" name="book">
