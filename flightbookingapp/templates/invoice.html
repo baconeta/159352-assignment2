@@ -112,13 +112,13 @@
                 <table>
                     <tr>
                         <td class="title">
-                            <img src="https://www.sparksuite.com/images/logo.png"
+                            <img src="{{ url_for('static', filename='logo.png') }}"
                                  style="width: 100%; max-width: 300px"/>
                         </td>
 
                         <td>
-                            Booking: {{ booking_ref }}<br/>
-                            Created: January 1, 2015<br/>
+                            Kulta Air Limited<br/>
+                            Booking: {{ booking.booking_ref }}<br/>
                         </td>
                     </tr>
                 </table>
@@ -130,6 +130,11 @@
                 <table>
                     <tr>
                         <td>
+                            Kulta Air Limited<br/>
+                            225 Dairy Flat Road,
+                            Auckland, NZ
+                        </td>
+                        <td>
                             {{ customer.first_name }} {{ customer.last_name }}<br/>
                             {{ customer.email }}
                         </td>
@@ -138,46 +143,38 @@
             </td>
         </tr>
 
-        <tr class="heading">
-            <td>Payment Method</td>
-
-            <td>Check #</td>
-        </tr>
-
         <tr class="details">
-            <td>Check</td>
-
-            <td>1000</td>
+            <td>Flight {{ departure.flight_number }}</td>
         </tr>
 
         <tr class="heading">
-            <td>Item</td>
+            <td>From {{ route.depart_airport }}</td>
 
-            <td>Price</td>
+            <td>To {{ route.arrive_airport }}</td>
         </tr>
 
         <tr class="item">
-            <td>Website design</td>
+            <td>{{ departure.depart_date.strftime("%a %d %B") }} - {{ route.depart_time }}</td>
 
-            <td>$300.00</td>
+            <td>{{ departure.arrival_date.strftime("%a %d %B") }} - {{ route.arrive_time }}</td>
         </tr>
 
-        <tr class="item">
-            <td>Hosting (3 months)</td>
+        <tr class="heading">
+            <td>Tickets booked</td>
 
-            <td>$75.00</td>
+            <td>Price per ticket</td>
         </tr>
 
         <tr class="item last">
-            <td>Domain name (1 year)</td>
+            <td>{{ booking.tickets }}</td>
 
-            <td>$10.00</td>
+            <td>${{ departure.price }}</td>
         </tr>
 
         <tr class="total">
             <td></td>
 
-            <td>Total: $385.00</td>
+            <td>Total: ${{ departure.price * booking.tickets }}</td>
         </tr>
     </table>
 </div>
