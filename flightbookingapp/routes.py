@@ -1,3 +1,5 @@
+import datetime
+
 from dateutil import parser
 from datetime import timedelta
 import random
@@ -264,7 +266,10 @@ def find_matching_flights(date, fly_from, fly_to, tickets):
         route = Route.query.filter_by(flight_code=flight.flight_number).first()
         avail_tickets = Aircraft.query.filter_by(id=route.plane).first().seats - flight.booked_seats
         if route.depart_airport == fly_from and route.arrive_airport == fly_to and avail_tickets >= int(tickets):
-            matches[flight] = route
+            date = flight.depart_date
+            time = route.depart_time
+            if not date_in_past(datetime.datetime.combine(date, time)):
+                matches[flight] = route
     return matches
 
 
@@ -301,14 +306,23 @@ def new_code():
     return new_booking_ref
 
 
+def date_in_past(date_and_time) -> bool:
+    return datetime.datetime.now() > date_and_time
+
+
 def cancel_booking(booking_ref):
     booking_to_cancel = Booking.query.filter_by(booking_ref=booking_ref).first()
-    # TODO don't allow past bookings to be cancelled
     try:
         tickets = booking_to_cancel.tickets
         departure = Departure.query.filter_by(id=booking_to_cancel.flight).first()
-        departure.booked_seats = departure.booked_seats - tickets
+        route = Route.query.filter_by(flight_code=departure.flight_number).first()
+        date = departure.depart_date
+        time = route.depart_time
+        if date_in_past(datetime.datetime.combine(date, time)):
+            flash("You can't cancel a flight in the past!", "info")
+            return
 
+        departure.booked_seats = departure.booked_seats - tickets
         handle_stopover_pathings(departure, tickets, True)
 
         db.session.delete(booking_to_cancel)
