@@ -15,6 +15,9 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ day.strftime("%a %d %B") }}</h5>
                     </div>
+                    <div>
+                        <small>{{ dates[day] }} matching flights</small>
+                    </div>
                 </button>
                 <input type="hidden" value={{ day }} name="date" class="btn btn-outline-info stretched-link">
             </form>

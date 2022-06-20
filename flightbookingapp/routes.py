@@ -141,14 +141,18 @@ def search_results(fly_from, fly_to, tickets, date):
 
     today = parser.parse(date)
 
-    dates = [today - timedelta(3), today - timedelta(2), today - timedelta(1), today, today + timedelta(1),
-             today + timedelta(2), today + timedelta(3)]
+    # Check for matching flights on 3 days either side of the request
+    dates = {}
+    for i in range(-3, 4):
+        check_date = today + timedelta(i)
+        dates[check_date] = len(find_matching_flights(check_date.strftime("%Y-%m-%d"), fly_from, fly_to, tickets))
 
     if request.method == 'POST':
         if request.form.get('book') == 'Book this flight':
             return redirect(
                 url_for('book', tickets=request.form.get('tickets'), departure=request.form.get('departure')))
 
+        # Links from within the date_cards in the search result page
         if request.form.get('date'):
             return redirect(
                 url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets,
@@ -229,7 +233,7 @@ def find_matching_flights(date, fly_from, fly_to, tickets):
     matches = {}
     for flight in Departure.query.filter_by(depart_date=date).all():
         route = Route.query.filter_by(flight_code=flight.flight_number).first()
-        avail_tickets = Aircraft.query.filter_by(id=route.plane).first().seats
+        avail_tickets = Aircraft.query.filter_by(id=route.plane).first().seats - flight.booked_seats
         if route.depart_airport == fly_from and route.arrive_airport == fly_to and avail_tickets >= int(tickets):
             matches[flight] = route
     return matches
@@ -281,10 +285,11 @@ def cancel_booking(booking_ref):
     booking_to_cancel = Booking.query.filter_by(booking_ref=booking_ref).first()
     # TODO don't allow past bookings to be cancelled
     try:
+        tickets = booking_to_cancel.tickets
+        departure = Departure.query.filter_by(id=booking_to_cancel.flight).first()
+        departure.booked_seats = departure.booked_seats - tickets
         db.session.delete(booking_to_cancel)
         db.session.commit()
-        flash(
-            "Booking " + booking_ref + " cancelled successfully.",
-            "success")
+        flash("Booking " + booking_ref + " cancelled successfully.", "success")
     except SQLAlchemyError:
         flash("Something went wrong cancelling this booking.", "danger")
