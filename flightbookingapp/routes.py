@@ -88,9 +88,12 @@ def logout():
 @login_required
 def customer():
     # booking cancellation
-    if request.method == "POST" and request.form.get('cancel') == 'Cancel booking':
-        cancel_booking(request.form.get('booking'))
-        return redirect(url_for('customer'))
+    if request.method == "POST":
+        if request.form.get('cancel') == 'Cancel booking':
+            cancel_booking(request.form.get('booking'))
+            return redirect(url_for('customer'))
+        if request.form.get('view') == 'View invoice':
+            return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
 
     user_bookings = current_user.bookings
     departures = Departure.query.all()
@@ -99,10 +102,12 @@ def customer():
 
 @app.route('/bookings', methods=['GET', 'POST'])
 def bookings():
-    # booking cancellation
-    if request.method == "POST" and request.form.get('cancel') == 'Cancel booking':
-        cancel_booking(request.form.get('booking'))
-        return redirect(url_for('bookings'))
+    if request.method == "POST":
+        if request.form.get('cancel') == 'Cancel booking':
+            cancel_booking(request.form.get('booking'))
+            return redirect(url_for('bookings'))
+        if request.form.get('view') == 'View invoice':
+            return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
 
     # find a booking functions
     form = FindBookingForm()
@@ -159,9 +164,17 @@ def book(tickets, departure):
         # TODO handle not logged in user (will need a form and a login option)
         if current_user.is_authenticated:
             booking_ref = save_booking(flight, tickets, current_user.id)
-            return redirect(url_for('invoice', booking_ref=booking_ref, surname=current_user.last_name.upper()))
+            return redirect(url_for('confirmation', booking_ref=booking_ref.upper()))
 
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
+
+
+@app.route('/confirmation/<booking_ref>', methods=['GET', 'POST'])
+def confirmation(booking_ref):
+    if request.method == "POST" and request.form.get('view') == "View invoice":
+        return redirect(url_for('invoice', booking_ref=booking_ref, surname=current_user.last_name.upper()))
+
+    return render_template('confirmation.html', booking_ref=booking_ref)
 
 
 @app.route('/invoice/<booking_ref>/<surname>')
@@ -176,17 +189,24 @@ def invoice(booking_ref, surname):
         return render_template('invoice.html', booking_ref=booking_ref, date=date, customer=booker)
     except SQLAlchemyError:
         flash(
-            "Something went wrong grabbing your invoice. Please call our helpdesk on 555-1010 during business hours for support.",
+            "Something went wrong getting your invoice. Please call our helpdesk on 07-555-1010 during business hours for support.",
             "danger")
         return render_template(url_for('home'))
 
 
 def save_booking(flight, tickets, customer_number):
-    booking_ref = generate_booking_ref()
-    new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id)
-    db.session.add(new_booking)
-    flight.booked_seats += int(tickets)
-    db.session.commit()
+    booking_ref = ""
+    try:
+        booking_ref = generate_booking_ref()
+        new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id)
+        db.session.add(new_booking)
+        flight.booked_seats += int(tickets)
+        db.session.commit()
+        flash("Your booking has been confirmed.", "success")
+    except SQLAlchemyError:
+        flash(
+            "Something went wrong making your booking. Please call our helpdesk on 07-555-1010 during business hours for support.",
+            "danger")
     return booking_ref
 
 
