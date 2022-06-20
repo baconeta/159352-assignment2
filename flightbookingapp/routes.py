@@ -215,7 +215,8 @@ def invoice(booking_ref, surname):
         departure = Departure.query.filter_by(id=booking.flight).first()
         route = Route.query.filter_by(flight_code=departure.flight_number).first()
         date = departure.depart_date
-        return render_template('invoice.html', booking=booking, date=date, customer=booker, departure=departure, route=route)
+        aircraft = Aircraft.query.filter_by(id=route.plane).first()
+        return render_template('invoice.html', booking=booking, date=date, customer=booker, departure=departure, route=route, aircraft=aircraft)
     except SQLAlchemyError:
         flash(
             "Something went wrong getting your invoice. Please call our helpdesk on 07-555-1010 during business hours for support.",

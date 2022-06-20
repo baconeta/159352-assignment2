@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
-    <title>Booking {{ booking_ref }}</title>
+    <title>Booking receipt {{ booking.booking_ref }}</title>
 
     <style>
         .invoice-box {
@@ -145,20 +145,20 @@
 
         <tr class="details">
             <td>Flight {{ departure.flight_number }}</td>
+            <td>Aircraft {{ aircraft.name }}</td>
         </tr>
 
         <tr class="heading">
-            <td>From {{ route.depart_airport }}</td>
+            <td>Departing from {{ route.depart_airport }}</td>
 
-            <td>To {{ route.arrive_airport }}</td>
+            <td>Arriving in {{ route.arrive_airport }}</td>
         </tr>
 
         <tr class="item">
-            <td>{{ departure.depart_date.strftime("%a %d %B") }} - {{ route.depart_time }}</td>
+            <td><i>{{ departure.depart_date.strftime("%a %d %B") }} - {{ route.depart_time }}</i></td>
 
-            <td>{{ departure.arrival_date.strftime("%a %d %B") }} - {{ route.arrive_time }}</td>
+            <td><i>{{ departure.arrival_date.strftime("%a %d %B") }} - {{ route.arrive_time }}</i></td>
         </tr>
-
         <tr class="heading">
             <td>Tickets booked</td>
 
@@ -174,7 +174,7 @@
         <tr class="total">
             <td></td>
 
-            <td>Total: ${{ departure.price * booking.tickets }}</td>
+            <td>Total: ${{ departure.price * booking.tickets }} to be paid upon checkin</td>
         </tr>
     </table>
 </div>
