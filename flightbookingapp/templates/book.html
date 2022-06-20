@@ -3,19 +3,23 @@
     <div class="content-section">
         <div class="media">
             <div class="media-body">
-                <form method="POST" action="">
-                    {# TODO add price and make slightly prettier #}
-                    <p>You are booking flight {{ flight.flight_number }}.<br>
-                        It leaves {{ dep.name }} at {{ route.depart_time }} on {{ flight.depart_date }}
-                        ({{ dep.timezone }}
-                        time).<br>
-                        It arrives to {{ arr.name }} at {{ route.arrive_time }} on {{ flight.arrival_date }}
-                        ({{ arr.timezone }}
-                        time).<br>
-                        You are booking {{ tickets }} seats.<br></p>
+                {% if current_user.is_authenticated %}
+                    <form method="POST" action="">
+                        <p>You are booking flight {{ flight.flight_number }}.<br>
+                            It leaves {{ dep.name }} at {{ route.depart_time }} on {{ flight.depart_date }}
+                            ({{ dep.timezone }}
+                            time).<br>
+                            It arrives to {{ arr.name }} at {{ route.arrive_time }} on {{ flight.arrival_date }}
+                            ({{ arr.timezone }}
+                            time).<br>
+                            You are booking {{ tickets }} seats.<br></p>
+                        <input type="submit" name="confirm" value="Confirm booking" class="btn btn-outline-info">
+                    </form>
+                {% else %}
+                    <h5> Login or register to finalise your booking</h5>
+                    {% include "login_form.html" %}
+                {% endif %}
 
-                    <input type="submit" name="confirm" value="Confirm booking" class="btn btn-outline-info">
-                </form>
             </div>
         </div>
     </div>

@@ -182,15 +182,15 @@ def search_results(fly_from, fly_to, tickets, date):
 
 
 @app.route('/book/<tickets>&<departure>', methods=['GET', 'POST'])
+@login_required
 def book(tickets, departure):
     flight = Departure.query.filter_by(id=departure).first()
     route = Route.query.filter_by(flight_code=flight.flight_number).first()
     dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
     arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
 
-    if request.method == "POST" and request.form.get('confirm') == 'Confirm booking':
-        # TODO handle not logged in user (will need a form and a login option)
-        if current_user.is_authenticated:
+    if request.method == "POST":
+        if request.form.get('confirm') == 'Confirm booking' and current_user.is_authenticated:
             booking_ref = save_booking(flight, tickets, current_user.id)
             return redirect(url_for('confirmation', booking_ref=booking_ref.upper()))
 
