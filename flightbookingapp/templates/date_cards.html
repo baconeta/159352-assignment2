@@ -1,70 +1,24 @@
-<div class="container">
-        <div class="card-deck">
-            <div class="card border-info mb-3" style="width: 18rem;">
-                <form method="post" action="">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ dates[0].strftime("%a %d %B") }}</h5>
-                        <input type="submit" value="Search" name="search" class="btn btn-outline-info stretched-link">
-                        <input type="hidden" value={{ dates[0] }} name="date"
-                               class="btn btn-outline-info stretched-link">
-                    </div>
-                </form>
-            </div>
-            <div class="card border-info mb-3" style="width: 18rem;">
-                <form method="post" action="">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ dates[1].strftime("%a %d %B") }}</h5>
-                        <input type="submit" value="Search" name="search" class="btn btn-outline-info stretched-link">
-                        <input type="hidden" value={{ dates[1] }} name="date"
-                               class="btn btn-outline-info stretched-link">
-                    </div>
-                </form>
-            </div>
-            <div class="card border-info mb-3" style="width: 18rem;">
-                <form method="post" action="">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ dates[2].strftime("%a %d %B") }}</h5>
-                        <input type="submit" value="Search" name="search" class="btn btn-outline-info stretched-link">
-                        <input type="hidden" value={{ dates[2] }} name="date"
-                               class="btn btn-outline-info stretched-link">
-                    </div>
-                </form>
-            </div>
-            <div class="card border-info mb-3" style="width: 18rem;">
+<div class="container d-flex justify-content-between p-0">
+    {% for day in dates %}
+        {% if loop.index0 == loop.length // 2 %}
+            <div class="btn card border-warning mb-3"
+                 style="width: 9rem; pointer-events: none;">
                 <div class="card-body">
-                    <h5 class="card-body">{{ dates[3].strftime("%a %d %B") }}</h5>
+                    <h5 class="card-title">{{ day.strftime("%a %d %B") }}</h5>
                 </div>
             </div>
-            <div class="card border-info mb-3" style="width: 18rem;">
-                <form method="post" action="">
+            <input type="hidden" value={{ day }} name="date" class="btn btn-outline-info stretched-link">
+        {% else %}
+            <form method="post" action="">
+                <button type="submit" name="search" class="btn btn-outline-info card border-info mb-3"
+                        style="width: 9rem;">
                     <div class="card-body">
-                        <h5 class="card-title">{{ dates[4].strftime("%a %d %B") }}</h5>
-                        <input type="submit" value="Search" name="search" class="btn btn-outline-info stretched-link">
-                        <input type="hidden" value={{ dates[4] }} name="date"
-                               class="btn btn-outline-info stretched-link">
+                        <h5 class="card-title">{{ day.strftime("%a %d %B") }}</h5>
                     </div>
-                </form>
-            </div>
-            <div class="card border-info mb-3" style="width: 18rem;">
-                <form method="post" action="">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ dates[5].strftime("%a %d %B") }}</h5>
-                        <input type="submit" value="Search" name="search" class="btn btn-outline-info stretched-link">
-                        <input type="hidden" value={{ dates[5] }} name="date"
-                               class="btn btn-outline-info stretched-link">
-                    </div>
-                </form>
-            </div>
-            <div class="card border-info mb-3" style="width: 18rem;">
-                <form method="post" action="">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ dates[6].strftime("%a %d %B") }}</h5>
-                        <input type="submit" value="Search" name="search" class="btn btn-outline-info stretched-link">
-                        <input type="hidden" value={{ dates[6] }} name="date"
-                               class="btn btn-outline-info stretched-link">
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    </br>
+                </button>
+                <input type="hidden" value={{ day }} name="date" class="btn btn-outline-info stretched-link">
+            </form>
+        {% endif %}
+    {% endfor %}
+</div>
+

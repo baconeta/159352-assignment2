@@ -149,7 +149,7 @@ def search_results(fly_from, fly_to, tickets, date):
             return redirect(
                 url_for('book', tickets=request.form.get('tickets'), departure=request.form.get('departure')))
 
-        if request.form.get('search') == 'Search':
+        if request.form.get('date'):
             return redirect(
                 url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets,
                         date=request.form.get('date'),
