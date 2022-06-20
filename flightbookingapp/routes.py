@@ -168,7 +168,6 @@ def search_results(fly_from, fly_to, tickets, date):
     else:
         fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
 
-    search_result_flashes(matches)
     return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form, dates=dates)
 
 
@@ -237,15 +236,6 @@ def find_matching_flights(date, fly_from, fly_to, tickets):
         if route.depart_airport == fly_from and route.arrive_airport == fly_to and avail_tickets >= int(tickets):
             matches[flight] = route
     return matches
-
-
-def search_result_flashes(matches):
-    if len(matches) > 1:
-        flash(f"You found {len(matches)} matching flights.", 'success')
-    elif len(matches) == 1:
-        flash(f"You found 1 matching flight.", 'success')
-    else:
-        flash("No matching flights, search again.", 'info')
 
 
 def grab_search_data(form):
