@@ -24,6 +24,13 @@
                                     at
                                     {{ booking[2].depart_time.strftime("%#I:%M%p") }} ({{ booking[3].timezone }} time).
                                 </h5>
+                                {% if booking[2].stopover_time != None %}
+                                    <h5>
+                                        <i class="fa-solid fa-plane"></i> Stopover in {{ booking[2].stopover_airport }}
+                                        at {{ booking[2].stopover_time.strftime("%#I:%M%p") }}
+                                        ({{ booking[3].timezone }} time).
+                                    </h5>
+                                {% endif %}
                                 <h5>
                                     <i class="fa-solid fa-plane-arrival"></i> {{ (booking[1].arrival_date).strftime("%a %d %B") }}
                                     at
