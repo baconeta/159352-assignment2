@@ -17,13 +17,13 @@ def validate_email(email):
 
 
 class RegistrationForm(FlaskForm):
-    firstname = StringField('First name', validators=[DataRequired(), Length(min=3, max=20)])
-    lastname = StringField('Last name', validators=[DataRequired(), Length(min=3, max=20)])
+    firstname = StringField('First name', validators=[DataRequired(), Length(min=3, max=25)])
+    lastname = StringField('Last name', validators=[DataRequired(), Length(min=3, max=25)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     dob = DateField('Date of birth', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired(), Length(min=6, max=40)])
+    password = PasswordField('Password [at least 6 characters]', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), Length(min=6, max=40), EqualTo('password')])
+                                     validators=[DataRequired(), Length(min=6), EqualTo('password')])
     submit = SubmitField('Register')
 
 
@@ -36,9 +36,9 @@ class LoginForm(FlaskForm):
 
 class ResetPasswordForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
-    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6, max=40)])
+    new_password = PasswordField('New Password [at least 6 characters]', validators=[DataRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password',
-                                     validators=[DataRequired(), Length(min=6, max=40), EqualTo('new_password')])
+                                     validators=[DataRequired(), Length(min=6), EqualTo('new_password')])
     dob = DateField('Date of birth', default=False, validators=[DataRequired()])
     submit = SubmitField('Set New Password')
 
@@ -65,12 +65,12 @@ class UpdateDetailsForm(FlaskForm):
     firstname = StringField('First name', validators=[DataRequired(), Length(min=3, max=20)])
     lastname = StringField('Last name', validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
-    current_password = PasswordField('Current Password (required)', validators=[DataRequired(), Length(min=6, max=40)])
+    current_password = PasswordField('Current Password (required)', validators=[DataRequired(), Length(min=6)])
     dob = DateField('Date of birth', validators=[DataRequired()])
-    new_password = PasswordField('New Password (optional)')
+    new_password = PasswordField('New Password (optional) [at least 6 characters]')
     submit = SubmitField('Update Details')
 
     def validate_new_password(self, new_password):
         if new_password.data != "" and new_password.data is not None:
-            if len(new_password.data) < 6 or len(new_password.data) > 40:
-                raise ValidationError('New password must be between 6 and 40 characters.')
+            if len(new_password.data) < 6:
+                raise ValidationError('New password must be at least 6 characters long.')
