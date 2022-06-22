@@ -2,12 +2,12 @@
     <div class="media">
         <div class="media-body">
             <h2 class="bookings-heading">Upcoming bookings</h2>
-            {% if bookings == {} %}
+            {% set ns = namespace(upcoming=false, past=false) %}
+            {% if bookings == [] %}
+                <br>
                 <p class="text-secondary"><a class="ml-2" href="{{ url_for('home') }}">You have no upcoming bookings.
                     Click here to make one!</a></p>
             {% else %}
-                {% set ns = namespace(upcoming=false) %}
-                {% set ns = namespace(past=false) %}
                 <br>
                 {% for booking in bookings %}
                     {# booking[5] is a bool representing whether the booking is in the past #}
@@ -36,19 +36,20 @@
                             </form>
                         </div>
                     {% else %}
-                        {% set ns.past=true %}
+                        {% set ns.past = true %}
                     {% endif %}
                 {% endfor %}
                 {% if ns.upcoming == false %}
                     <div class="text-secondary"><a class="ml-1" href="{{ url_for('home') }}">You have no upcoming
-                        bookings.
-                        Click here to make one!</a></div>
+                        bookings. Click here to make one!</a>
+                    </div>
+                    <br>
                 {% endif %}
             {% endif %}
         </div>
     </div>
 </div>
-{% if not bookings == {} and ns.past == true %}
+{% if not bookings == [] and ns.past == true %}
     <div class="content-section">
         <div class="media-body">
             <h2 class="bookings-heading">Past bookings</h2>
