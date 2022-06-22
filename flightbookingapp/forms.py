@@ -33,6 +33,13 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+class ResetPasswordForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    new_password = PasswordField('New Password', validators=[DataRequired(), Length(min=6, max=40)])
+    dob = DateField('Date of birth', default=False)
+    submit = SubmitField('Set New Password')
+
+
 class BookingForm(FlaskForm):
     fly_from = QuerySelectField('From', query_factory=airports, allow_blank=False)
     fly_to = QuerySelectField('To', query_factory=airports, allow_blank=False)

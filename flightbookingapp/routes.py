@@ -12,9 +12,6 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 
-from flask_fontawesome import FontAwesome
-
-
 
 @app.errorhandler(404)
 def not_found(e):
@@ -88,7 +85,8 @@ def register():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('home'))
+    flash('Successfully logged out. See you next time!', "success")
+    return redirect(url_for('login'))
 
 
 @app.route('/customer', methods=['GET', 'POST'])

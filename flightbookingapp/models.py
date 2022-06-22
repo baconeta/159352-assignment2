@@ -23,6 +23,7 @@ class Customer(db.Model, UserMixin):
     email = db.Column(db.VARCHAR(50), nullable=False, unique=True)
     phone_number = db.Column(db.Integer)
     password = db.Column(db.VARCHAR(60), default=None)
+    dob = db.Column(db.Date, default=None)
     bookings = db.relationship('Booking', backref='booked_customer', lazy=True)
 
     def __repr__(self):
