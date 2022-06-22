@@ -8,6 +8,36 @@
             {% else %}
                 <br>
                 {% for booking in bookings %}
+                    {% if not booking[5] %}
+                        <div class="content-section">
+                            <form method="post" action="">
+                                <h3 class="text-primary">Booking reference {{ booking[0].booking_ref.upper() }}</h3>
+                                <h5>Flight {{ booking[1].flight_number }} flying from {{ booking[3].name }}
+                                    to {{ booking[4].name }}</h5>
+                                <br>
+                                <h5>Departure: {{ (booking[1].depart_date).strftime("%a %d %B") }} at
+                                    {{ booking[2].depart_time }} {{ booking[3].timezone }}</h5>
+                                <h5>Arrival: {{ (booking[1].arrival_date).strftime("%a %d %B") }} at
+                                    {{ booking[2].arrive_time }} {{ booking[4].timezone }}</h5>
+                                <h5>Tickets: {{ booking[0].tickets }}</h5>
+                                <input type="hidden" name="booking" value={{ booking[0].booking_ref.upper() }}>
+                                <input type="submit" value="View invoice" name="view" class="btn btn-outline-info">
+                                <input type="submit" value="Cancel booking" name="cancel" class="btn btn-outline-info">
+                                {# TODO Add stopovers #}
+                            </form>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
+        </div>
+    </div>
+    <div class="media-body">
+        <h2 class="bookings-heading">Past bookings</h2>
+        {% if not bookings == {} %}
+            <br>
+            {% for booking in bookings|reverse %}
+                {% if booking[5] %}
                     <div class="content-section">
                         <form method="post" action="">
                             <h3 class="text-primary">Booking reference {{ booking[0].booking_ref.upper() }}</h3>
@@ -21,17 +51,12 @@
                             <h5>Tickets: {{ booking[0].tickets }}</h5>
                             <input type="hidden" name="booking" value={{ booking[0].booking_ref.upper() }}>
                             <input type="submit" value="View invoice" name="view" class="btn btn-outline-info">
-                            {% if not booking[5] %}
-                                <input type="submit" value="Cancel booking" name="cancel" class="btn btn-outline-info">
-                            {% endif %}
-
                             {# TODO Add stopovers #}
                         </form>
-
                     </div>
-                {% endfor %}
+                {% endif %}
+            {% endfor %}
 
-            {% endif %}
-        </div>
+        {% endif %}
     </div>
 </div>

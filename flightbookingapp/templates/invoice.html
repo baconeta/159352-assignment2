@@ -82,25 +82,6 @@
                 text-align: center;
             }
         }
-
-        /** RTL **/
-        .invoice-box.rtl {
-            direction: rtl;
-            font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-        }
-
-        .invoice-box.rtl table {
-            text-align: right;
-        }
-
-        .invoice-box.rtl table tr td:nth-child(2) {
-            text-align: left;
-        }
-
-        @page {
-            size: a4 portrait;
-            margin: 0mm 0mm 0mm 0mm;
-        }
     </style>
 </head>
 
@@ -177,7 +158,7 @@
             <td>Total: ${{ departure.price * booking.tickets }} to be paid upon checkin</td>
         </tr>
     </table>
-    <div class="container"> Click <a href={{ url_for('home') }}>here</a> to go home</div>
+    <div class="container">Click <a href={{ url_for('home') }}>here</a> to go home</div>
 </div>
 
 </body>
