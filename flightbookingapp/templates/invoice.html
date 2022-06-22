@@ -149,13 +149,13 @@
         <tr class="item last">
             <td>{{ booking.tickets }}</td>
 
-            <td>${{ departure.price }}</td>
+            <td>{{ "$%.2f"|format(departure.price) }}</td>
         </tr>
 
         <tr class="total">
             <td></td>
 
-            <td>Total: ${{ departure.price * booking.tickets }} to be paid upon checkin</td>
+            <td>Total: {{ "$%.2f"|format(departure.price * booking.tickets) }} to be paid upon checkin</td>
         </tr>
     </table>
     <div class="container">Click <a href={{ url_for('home') }}>here</a> to go home</div>

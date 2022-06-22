@@ -12,15 +12,33 @@
         <div class="media">
             <div class="media-body">
                 {% if bookable != {} %}
-                    {% for flight in bookable %}
+                    {% for flight, details in bookable.items() %}
                         <div class="content-section">
                             <form method="POST" action="">
                                 <h3>Flight {{ flight.flight_number }}</h3>
-                                <p>Depart from {{ bookable[flight].depart_airport }} on {{ flight.depart_date }}
-                                    at {{ bookable[flight].depart_time }} local time.<br>
-                                    Arrive at {{ bookable[flight].arrive_airport }} on {{ flight.arrival_date }}
-                                    at {{ bookable[flight].arrive_time }} local time.</p>
-                                {# TODO show price #}
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <td>
+                                            <i class="fa-solid fa-plane-departure"></i> <b>{{ details[2].name }}</b>
+                                            </br>
+                                            <i class="fa-solid fa-plane-arrival"></i> <b>{{ details[3].name }}</b>
+                                        </td>
+                                        <td>
+                                            {{ flight.depart_date.strftime("%A %d %B, %Y") }}
+                                            at {{ details[0].depart_time.strftime("%#I:%M%p") }} {{ details[2].timezone }}
+                                            time.<br>
+                                            {{ flight.arrival_date.strftime("%A %d %B, %Y") }}
+                                            at {{ details[0].arrive_time.strftime("%#I:%M%p") }} {{ details[3].timezone }}
+                                            time.
+                                        </td>
+                                        <td>
+                                            <i>{{ details[1] }} seats remaining at this price</i></br>
+                                            <b>Price per ticket: {{ "$%.2f"|format(flight.price) }}</b>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
                                 <input type="hidden" name="departure" value={{ flight.id }}>
                                 <input type="hidden" name="tickets" value={{ form.tickets.data }}>
                                 <input value="Book this flight" type="submit" class="btn btn-outline-info" name="book">

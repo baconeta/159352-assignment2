@@ -12,6 +12,9 @@ from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
 
+from flask_fontawesome import FontAwesome
+
+
 
 @app.errorhandler(404)
 def not_found(e):
@@ -169,8 +172,7 @@ def search_results(fly_from, fly_to, tickets, date):
         if request.form.get('date'):
             return redirect(
                 url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets,
-                        date=request.form.get('date'),
-                        dates=dates))
+                        date=request.form.get('date'), dates=dates))
 
     form = BookingForm()
     if form.validate_on_submit():
@@ -272,11 +274,12 @@ def find_matching_flights(date, fly_from, fly_to, tickets):
         route = Route.query.filter_by(flight_code=flight.flight_number).first()
         avail_tickets = Aircraft.query.filter_by(id=route.plane).first().seats - flight.booked_seats
         depart_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
+        arrive_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
         if route.depart_airport == fly_from and route.arrive_airport == fly_to and avail_tickets >= int(tickets):
             date = flight.depart_date
             time = route.depart_time
             if not date_in_past(datetime.datetime.combine(date, time), depart_airport.timezone):
-                matches[flight] = route
+                matches[flight] = [route, avail_tickets, depart_airport, arrive_airport]
     return matches
 
 
