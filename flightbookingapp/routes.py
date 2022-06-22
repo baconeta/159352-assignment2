@@ -195,7 +195,7 @@ def book(tickets, departure):
     arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
 
     if request.method == "POST":
-        if request.form.get('confirm') == 'Confirm booking' and current_user.is_authenticated:
+        if 'Confirm booking' in request.form.get('confirm') and current_user.is_authenticated:
             booking_ref = save_booking(flight, tickets, current_user.id)
             return redirect(url_for('confirmation', booking_ref=booking_ref.upper()))
 

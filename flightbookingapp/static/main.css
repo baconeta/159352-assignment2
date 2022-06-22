@@ -1,70 +1,82 @@
 body {
-  background: #fafafa;
-  color: #333333;
-  margin-top: 5rem;
+    background: #fafafa;
+    color: #333333;
+    margin-top: 5rem;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color: #444444;
+    color: #444444;
 }
 
 .bg-steel {
-  background-color: #e3a502;
+    background-color: #e3a502;
 }
 
 .site-header .navbar-nav .nav-link {
-  color: #352e07;
+    color: #352e07;
 }
 
 .site-header .navbar-nav .nav-link:hover {
-  color: #f8e39f;
+    color: #f8e39f;
 }
 
 .site-header .navbar-nav .nav-link.active {
-  font-weight: 500;
+    font-weight: 500;
 }
 
 .content-section {
-  background: #ffffff;
-  padding: 10px 20px;
-  border: 1px solid #dddddd;
-  border-radius: 3px;
-  margin-bottom: 20px;
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    border-radius: 3px;
+    margin-bottom: 20px;
 }
 
-.fade-in-div  {
+.fade-in-div {
     animation: fadein 1s;
     -moz-animation: fadein 1s; /* Firefox */
     -webkit-animation: fadein 1s; /* Safari and Chrome */
     -o-animation: fadein 1s; /* Opera */
 }
+
+.fade-in-div-slow {
+    animation: fadein 5s;
+    -moz-animation: fadein 5s; /* Firefox */
+    -webkit-animation: fadein 5s; /* Safari and Chrome */
+    -o-animation: fadein 5s; /* Opera */
+}
+
+
 @keyframes fadein {
     from {
-        opacity:0;
+        opacity: 0;
     }
     to {
-        opacity:1;
+        opacity: 1;
     }
 }
+
 @-moz-keyframes fadein { /* Firefox */
     from {
-        opacity:0;
+        opacity: 0;
     }
     to {
-        opacity:1;
+        opacity: 1;
     }
 }
+
 @-webkit-keyframes fadein { /* Safari and Chrome */
     from {
-        opacity:0;
+        opacity: 0;
     }
     to {
-        opacity:1;
+        opacity: 1;
     }
 }
+
 @-o-keyframes fadein { /* Opera */
     from {
-        opacity:0;
+        opacity: 0;
     }
     to {
         opacity: 1;

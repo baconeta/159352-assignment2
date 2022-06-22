@@ -13,7 +13,7 @@
             <div class="media-body">
                 {% if bookable != {} %}
                     {% for flight, details in bookable.items() %}
-                        <div class="content-section fade-in-div">
+                        <div class="content-section">
                             <form method="POST" action="">
                                 <h3>Flight {{ flight.flight_number }}</h3>
                                 <table class="table">

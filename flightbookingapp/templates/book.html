@@ -2,24 +2,32 @@
 {% block content %}
     <div class="content-section">
         <div class="media">
-            <div class="media-body align-items-center">
+            <div class="media-body" style="text-align: center">
                 {% if current_user.is_authenticated %}
                     <form method="POST" action="">
                         <h3>You are about to book flight {{ flight.flight_number }}</h3><br>
-                        <h5>
-                            <i class="fa-solid fa-plane-departure"></i> {{ dep.name }} ({{ dep.int_code }})
-                            at {{ route.depart_time.strftime("%#I:%M%p") }}
-                            on {{ flight.depart_date.strftime("%A %d %B, %Y") }}
-                            ({{ dep.timezone }}
-                            time).<br>
-                            <i class="fa-solid fa-plane-arrival"></i> {{ arr.name }} ({{ arr.int_code }})
-                            at {{ route.arrive_time.strftime("%#I:%M%p") }}
-                            on {{ flight.arrival_date.strftime("%A %d %B, %Y") }}
-                            ({{ arr.timezone }}
-                            time).<br>
-                            You are booking {{ tickets }} seats.<br>
-                        </h5>
-                        <input type="submit" name="confirm" value="Confirm booking" class="btn btn-outline-info">
+
+                        <div class="fade-in-div">
+                            <h5>
+                                <i class="fa-solid fa-plane-departure"></i> {{ dep.name }} ({{ dep.int_code }})
+                                at {{ route.depart_time.strftime("%#I:%M%p") }}
+                                on {{ flight.depart_date.strftime("%A %d %B, %Y") }}
+                                ({{ dep.timezone }}
+                                time).<br/>
+                                <i class="fa-solid fa-plane-arrival"></i> {{ arr.name }} ({{ arr.int_code }})
+                                at {{ route.arrive_time.strftime("%#I:%M%p") }}
+                                on {{ flight.arrival_date.strftime("%A %d %B, %Y") }}
+                                ({{ arr.timezone }}
+                                time).<br/>
+                            </h5>
+                            <h6>{{ tickets }} tickets for {{ "$%.2f"|format(flight.price) }} each<br/>
+                                Total price: {{ "$%.2f"|format(flight.price * tickets|float) }} (NZD)</h6>
+                        </div>
+                        <div class="fade-in-div-slow"><input type="submit" name="confirm"
+                                                             value="Confirm booking for {{ tickets }} seats"
+                                                             class="btn btn-outline-info">
+                        </div>
+
                     </form>
                 {% else %}
                     <h5> Login or register to finalise your booking</h5>
