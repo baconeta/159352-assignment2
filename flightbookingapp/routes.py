@@ -12,7 +12,7 @@ import flightbookingapp.route_funcs as funcs
 
 @app.errorhandler(404)
 def not_found(e):
-    return render_template("404.html")
+    return render_template("404.html", title='Page not found')
 
 
 @app.route('/', methods=['GET', 'POST'])
