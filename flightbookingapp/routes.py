@@ -1,9 +1,5 @@
-import datetime
-from zoneinfo import ZoneInfo
-
 from dateutil import parser
 from datetime import timedelta
-import random
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
@@ -11,6 +7,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from flightbookingapp import app, db, bcrypt
 from flightbookingapp.forms import *
 from flightbookingapp.models import Aircraft, Customer, Route, Airport, Booking, Departure
+import flightbookingapp.route_funcs as funcs
 
 
 @app.errorhandler(404)
@@ -95,17 +92,17 @@ def logout():
 def customer():
     # Customer Details
     form = UpdateDetailsForm()
-    handle_customer_details(form)
+    funcs.handle_customer_details(form)
 
     # Bookings
     if request.method == "POST":
         if request.form.get('cancel') == 'Cancel booking':
-            cancel_booking(request.form.get('booking'))
+            funcs.cancel_booking(request.form.get('booking'))
             return redirect(url_for('customer'))
         if request.form.get('view') == 'View invoice':
             return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
 
-    flight_info = collect_user_bookings()
+    flight_info = funcs.collect_user_bookings()
     return render_template('customer.html', title='My Account', bookings=flight_info, form=form)
 
 
@@ -113,7 +110,7 @@ def customer():
 def bookings():
     if request.method == "POST":
         if request.form.get('cancel') == 'Cancel booking':
-            cancel_booking(request.form.get('booking'))
+            funcs.cancel_booking(request.form.get('booking'))
             return redirect(url_for('bookings'))
         if request.form.get('view') == 'View invoice':
             return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
@@ -135,7 +132,7 @@ def bookings():
     # Prepare to show user bookings
     flight_info = {}
     if current_user.is_authenticated:
-        flight_info = collect_user_bookings()
+        flight_info = funcs.collect_user_bookings()
 
     return render_template('bookings.html', title='Bookings', loggedin=current_user.is_authenticated,
                            user_bookings=flight_info, form=form)
@@ -143,7 +140,7 @@ def bookings():
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
 def search_results(fly_from, fly_to, tickets, date):
-    matches = find_matching_flights(date, fly_from, fly_to, tickets)
+    matches = funcs.find_matching_flights(date, fly_from, fly_to, tickets)
 
     today = parser.parse(date)
 
@@ -151,7 +148,7 @@ def search_results(fly_from, fly_to, tickets, date):
     dates = {}
     for i in range(-3, 4):
         check_date = today + timedelta(i)
-        dates[check_date] = len(find_matching_flights(check_date.strftime("%Y-%m-%d"), fly_from, fly_to, tickets))
+        dates[check_date] = len(funcs.find_matching_flights(check_date.strftime("%Y-%m-%d"), fly_from, fly_to, tickets))
 
     if request.method == 'POST':
         if request.form.get('book') == 'Book this flight':
@@ -166,12 +163,12 @@ def search_results(fly_from, fly_to, tickets, date):
 
     form = BookingForm()
     if form.validate_on_submit():
-        calendar, fly_from, fly_to, tickets = grab_search_data(form)
+        calendar, fly_from, fly_to, tickets = funcs.grab_search_data(form)
 
         return redirect(
             url_for('search_results', fly_from=fly_from, fly_to=fly_to, tickets=tickets, date=calendar, dates=dates))
     else:
-        fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
+        funcs.fill_booking_form_fields(date, fly_from, fly_to, form, tickets)
 
     return render_template('search_results.html', title='Find a Flight', bookable=matches, form=form, dates=dates)
 
@@ -186,7 +183,7 @@ def book(tickets, departure):
 
     if request.method == "POST":
         if 'Confirm booking' in request.form.get('confirm') and current_user.is_authenticated:
-            booking_ref = save_booking(flight, tickets, current_user.id)
+            booking_ref = funcs.save_booking(flight, tickets, current_user.id)
             return redirect(url_for('confirmation', booking_ref=booking_ref.upper()))
 
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
@@ -224,186 +221,6 @@ def invoice(booking_ref, surname):
 def reset_password():
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        if reset_customer_password(form):
+        if funcs.reset_customer_password(form):
             return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
-
-
-def save_booking(flight, tickets, customer_number):
-    booking_ref = ""
-    try:
-        booking_ref = generate_booking_ref()
-        new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id, tickets=tickets)
-        db.session.add(new_booking)
-        flight.booked_seats += int(tickets)
-
-        handle_stopover_pathings(flight, tickets)
-
-        db.session.commit()
-        flash("Your booking has been confirmed.", "success")
-    except SQLAlchemyError:
-        flash(
-            "Something went wrong making your booking. Please call our helpdesk on 07-555-1010 during business hours for support.",
-            "danger")
-    return booking_ref
-
-
-def handle_stopover_pathings(flight, tickets, cancel=False):
-    route = Route.query.filter_by(flight_code=flight.flight_number).first()
-    if route.stopover_airport is not None:
-        stopover_route = route.flight_code + "-R"
-        stopover_flight = Departure.query.filter_by(flight_number=stopover_route,
-                                                    depart_date=flight.depart_date).first()
-        if cancel:
-            stopover_flight.booked_seats -= int(tickets)
-        else:
-            stopover_flight.booked_seats += int(tickets)
-    if "-R" in flight.flight_number:
-        origin_route = route.flight_code[:-2]
-        origin_flight = Departure.query.filter_by(flight_number=origin_route, depart_date=flight.depart_date).first()
-        if cancel:
-            origin_flight.booked_seats -= int(tickets)
-        else:
-            origin_flight.booked_seats += int(tickets)
-
-
-def find_matching_flights(date, fly_from, fly_to, tickets):
-    matches = {}
-    for flight in Departure.query.filter_by(depart_date=date).all():
-        route = Route.query.filter_by(flight_code=flight.flight_number).first()
-        avail_tickets = Aircraft.query.filter_by(id=route.plane).first().seats - flight.booked_seats
-        depart_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
-        arrive_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
-        if route.depart_airport == fly_from and route.arrive_airport == fly_to and avail_tickets >= int(tickets):
-            date = flight.depart_date
-            time = route.depart_time
-            if not date_in_past(datetime.datetime.combine(date, time), depart_airport.timezone):
-                matches[flight] = [route, avail_tickets, depart_airport, arrive_airport]
-    return matches
-
-
-def grab_search_data(form):
-    fly_from = form.fly_from.data.int_code
-    fly_to = form.fly_to.data.int_code
-    tickets = form.tickets.data
-    calendar = form.calendar.data
-    return calendar, fly_from, fly_to, tickets
-
-
-def fill_booking_form_fields(date, fly_from, fly_to, form, tickets):
-    form.tickets.data = tickets
-    form.fly_from.data = Airport.query.filter_by(int_code=fly_from).first()
-    form.fly_to.data = Airport.query.filter_by(int_code=fly_to).first()
-    form.calendar.data = parser.parse(date)
-
-
-def generate_booking_ref():
-    new_booking_ref = new_code()
-
-    while Booking.query.filter_by(booking_ref=new_booking_ref).first() is not None:
-        new_booking_ref = new_code()
-
-    return new_booking_ref
-
-
-def new_code():
-    new_booking_ref = ""
-    for x in range(3):
-        new_booking_ref += chr(random.randint(ord('A'), ord('Z')))
-    for x in range(3):
-        new_booking_ref += str(random.randint(0, 9))
-    return new_booking_ref
-
-
-def date_in_past(date_and_time, timezone) -> bool:
-    return datetime.datetime.now(ZoneInfo(timezone)) > date_and_time.replace(tzinfo=ZoneInfo(timezone))
-
-
-def cancel_booking(booking_ref):
-    booking_to_cancel = Booking.query.filter_by(booking_ref=booking_ref).first()
-    try:
-        tickets = booking_to_cancel.tickets
-        departure = Departure.query.filter_by(id=booking_to_cancel.flight).first()
-        route = Route.query.filter_by(flight_code=departure.flight_number).first()
-        departure_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
-        date = departure.depart_date
-        time = route.depart_time
-        if date_in_past(datetime.datetime.combine(date, time), departure_airport.timezone):
-            flash("You can't cancel a flight in the past!", "info")
-            return
-
-        departure.booked_seats = departure.booked_seats - tickets
-        handle_stopover_pathings(departure, tickets, True)
-
-        db.session.delete(booking_to_cancel)
-        db.session.commit()
-        flash("Booking " + booking_ref + " cancelled successfully.", "success")
-    except SQLAlchemyError:
-        flash("Something went wrong cancelling this booking.", "danger")
-
-
-def handle_customer_details(form):
-    if form.validate_on_submit():
-        if bcrypt.check_password_hash(current_user.password, form.current_password.data):
-            update_customer_details(form)
-        else:
-            flash('Current password was not correct. Account details not updated.', "warning")
-    else:
-        form.email.data = current_user.email
-        form.firstname.data = current_user.first_name
-        form.lastname.data = current_user.last_name
-        form.dob.data = current_user.dob
-
-
-def reset_customer_password(form):
-    try:
-        cust = Customer.query.filter_by(email=form.email.data).first()
-        if cust is None:
-            flash('No account exists with email address' + form.email.data, "warning")
-            return False
-        if form.dob.data == cust.dob:
-            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
-            cust.password = hashed_password
-            db.session.commit()
-            flash("Password reset successfully", "success")
-            return True
-        else:
-            flash('Email and date of birth don\'t match.', "warning")
-            return False
-    except SQLAlchemyError:
-        flash('Something went wrong with your request. Contact our call centre if the problem persists', "danger")
-        return False
-
-
-def update_customer_details(form):
-    try:
-        cust = Customer.query.filter_by(email=current_user.email).first()
-        new_cust_email = Customer.query.filter_by(email=form.email.data).first()
-        if new_cust_email is not None and cust is not new_cust_email:
-            flash("The email address " + form.email.data + " is already in use. No details were updated.", "danger")
-            form.email.data = cust.email
-            return
-        cust.email = form.email.data
-        cust.dob = form.dob.data
-        cust.first_name = form.firstname.data
-        cust.last_name = form.lastname.data
-        if form.new_password.data is not None and form.new_password.data != "":
-            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
-            cust.password = hashed_password
-        db.session.commit()
-        flash('Successfully updated account details.', "success")
-    except SQLAlchemyError:
-        flash("Something went wrong updating your details. Please contact customer service to update manually.")
-
-
-def collect_user_bookings():
-    flight_info = []
-    for booking in current_user.bookings:
-        departure = Departure.query.filter_by(id=booking.flight).first()
-        route = Route.query.filter_by(flight_code=departure.flight_number).first()
-        dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
-        arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
-        booking_past = date_in_past(datetime.datetime.combine(departure.depart_date, route.depart_time),
-                                    dep_airport.timezone)
-        flight_info.append([booking, departure, route, dep_airport, arr_airport, booking_past])
-    return sorted(flight_info, key=lambda flight: flight[1].depart_date)
