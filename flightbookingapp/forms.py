@@ -20,6 +20,7 @@ class RegistrationForm(FlaskForm):
     firstname = StringField('First name', validators=[DataRequired(), Length(min=3, max=20)])
     lastname = StringField('Last name', validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    dob = DateField('Date of birth', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=6, max=40)])
     confirm_password = PasswordField('Confirm Password',
                                      validators=[DataRequired(), Length(min=6, max=40), EqualTo('password')])
@@ -58,3 +59,18 @@ class FindBookingForm(FlaskForm):
     booking_ref = StringField('Booking Reference', validators=[DataRequired(), Length(min=1, max=6)])
     surname = StringField('Surname', validators=[DataRequired()])
     submit = SubmitField('Find Booking')
+
+
+class UpdateDetailsForm(FlaskForm):
+    firstname = StringField('First name', validators=[DataRequired(), Length(min=3, max=20)])
+    lastname = StringField('Last name', validators=[DataRequired(), Length(min=3, max=20)])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    current_password = PasswordField('Current Password (required)', validators=[DataRequired(), Length(min=6, max=40)])
+    dob = DateField('Date of birth', validators=[DataRequired()])
+    new_password = PasswordField('New Password (optional)')
+    submit = SubmitField('Update Details')
+
+    def validate_new_password(self, new_password):
+        if new_password.data != "" and new_password.data is not None:
+            if len(new_password.data) < 6 or len(new_password.data) > 40:
+                raise ValidationError('New password must be between 6 and 40 characters.')

@@ -1,20 +1,12 @@
 {% extends "layout.html" %}
 {% block content %}
-    <h2 class="account-heading"> Kulta Club Account Details </h2>
+    <h2 class="account-heading">Kulta Air Account for {{ current_user.first_name }}</h2><br>
     <div class="content-section">
         <div class="media">
             <div class="media-body">
-                <h2 class="account-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h2>
-                <p class="text-secondary">{{ current_user.email }}</p>
-                {% if current_user.phone_number == None %}
-                    <small class="text-secondary">No phone number provided</small>
-                    <p class="text-secondary">Click here to add a phone number to your account.</p>
-                    {# TODO allow user to add a phone number? #}
-                {% else %}
-                    <p class="text-secondary">{{ current_user.phone_number }}</p>
-                    <p>Click here to update your phone number.</p>
-                    {# TODO allow user to update their phone number? #}
-                {% endif %}
+                {#                <h2 class="account-heading">{{ current_user.first_name }} {{ current_user.last_name }}</h2>#}
+                {#                <p class="text-secondary">{{ current_user.email }}</p>#}
+                {% include 'customer_details.html' %}
             </div>
         </div>
     </div>

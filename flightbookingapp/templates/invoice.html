@@ -99,7 +99,7 @@
 
                         <td>
                             Kulta Air Limited<br/>
-                            Booking: {{ booking.booking_ref }}<br/>
+                            Booking reference: <b>{{ booking.booking_ref }}</b><br/>
                         </td>
                     </tr>
                 </table>
@@ -141,7 +141,7 @@
             <td><i>{{ departure.arrival_date.strftime("%a %d %B") }} - {{ route.arrive_time }}</i></td>
         </tr>
         <tr class="heading">
-            <td>Tickets booked</td>
+            <td>Seats booked</td>
 
             <td>Price per ticket</td>
         </tr>
@@ -155,7 +155,7 @@
         <tr class="total">
             <td></td>
 
-            <td>Total: {{ "$%.2f"|format(departure.price * booking.tickets) }} to be paid upon checkin</td>
+            <td>Total to be paid upon checkin: {{ "$%.2f"|format(departure.price * booking.tickets) }}</td>
         </tr>
     </table>
     <div class="container">Click <a href={{ url_for('home') }}>here</a> to go home</div>

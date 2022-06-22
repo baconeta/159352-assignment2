@@ -70,6 +70,7 @@ def register():
                 new_customer.first_name = form.firstname.data
                 new_customer.last_name = form.lastname.data
                 new_customer.email = form.email.data
+                new_customer.dob = form.dob.data
                 new_customer.password = hashed_password
                 db.session.add(new_customer)
                 db.session.commit()
@@ -92,7 +93,11 @@ def logout():
 @app.route('/customer', methods=['GET', 'POST'])
 @login_required
 def customer():
-    # booking cancellation
+    # Customer Details
+    form = UpdateDetailsForm()
+    handle_customer_details(form)
+
+    # Bookings
     if request.method == "POST":
         if request.form.get('cancel') == 'Cancel booking':
             cancel_booking(request.form.get('booking'))
@@ -101,7 +106,7 @@ def customer():
             return redirect(url_for('invoice', booking_ref=request.form.get('booking'), surname=current_user.last_name))
 
     flight_info = collect_user_bookings()
-    return render_template('customer.html', title='My Account', bookings=flight_info)
+    return render_template('customer.html', title='My Account', bookings=flight_info, form=form)
 
 
 @app.route('/bookings', methods=['GET', 'POST'])
@@ -127,26 +132,13 @@ def bookings():
         if find_booking:
             return redirect(url_for('home'))
 
-    # prepare to show user bookings
+    # Prepare to show user bookings
     flight_info = {}
     if current_user.is_authenticated:
         flight_info = collect_user_bookings()
 
     return render_template('bookings.html', title='Bookings', loggedin=current_user.is_authenticated,
                            user_bookings=flight_info, form=form)
-
-
-def collect_user_bookings():
-    flight_info = []
-    for booking in current_user.bookings:
-        departure = Departure.query.filter_by(id=booking.flight).first()
-        route = Route.query.filter_by(flight_code=departure.flight_number).first()
-        dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
-        arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
-        booking_past = date_in_past(datetime.datetime.combine(departure.depart_date, route.depart_time),
-                                    dep_airport.timezone)
-        flight_info.append([booking, departure, route, dep_airport, arr_airport, booking_past])
-    return sorted(flight_info, key=lambda flight: flight[1].depart_date)
 
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
@@ -228,31 +220,11 @@ def invoice(booking_ref, surname):
         return render_template(url_for('home'))
 
 
-def update_customer_password(form):
-    try:
-        cust = Customer.query.filter_by(email=form.email.data).first()
-        if cust is None:
-            flash('No account exists with email address' + form.email.data, "warning")
-            return False
-        if form.dob.data == cust.dob:
-            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
-            cust.password = hashed_password
-            db.session.commit()
-            flash("Password reset successfully", "success")
-            return True
-        else:
-            flash('Email and date of birth don\'t match.', "warning")
-            return False
-    except SQLAlchemyError:
-        flash('Something went wrong with your request. Contact our call centre if the problem persists', "danger")
-        return False
-
-
 @app.route('/reset', methods=['GET', 'POST'])
 def reset_password():
     form = ResetPasswordForm()
     if form.validate_on_submit():
-        if update_customer_password(form):
+        if reset_customer_password(form):
             return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
@@ -368,3 +340,70 @@ def cancel_booking(booking_ref):
         flash("Booking " + booking_ref + " cancelled successfully.", "success")
     except SQLAlchemyError:
         flash("Something went wrong cancelling this booking.", "danger")
+
+
+def handle_customer_details(form):
+    if form.validate_on_submit():
+        if bcrypt.check_password_hash(current_user.password, form.current_password.data):
+            update_customer_details(form)
+        else:
+            flash('Current password was not correct. Account details not updated.', "warning")
+    else:
+        form.email.data = current_user.email
+        form.firstname.data = current_user.first_name
+        form.lastname.data = current_user.last_name
+        form.dob.data = current_user.dob
+
+
+def reset_customer_password(form):
+    try:
+        cust = Customer.query.filter_by(email=form.email.data).first()
+        if cust is None:
+            flash('No account exists with email address' + form.email.data, "warning")
+            return False
+        if form.dob.data == cust.dob:
+            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+            cust.password = hashed_password
+            db.session.commit()
+            flash("Password reset successfully", "success")
+            return True
+        else:
+            flash('Email and date of birth don\'t match.', "warning")
+            return False
+    except SQLAlchemyError:
+        flash('Something went wrong with your request. Contact our call centre if the problem persists', "danger")
+        return False
+
+
+def update_customer_details(form):
+    try:
+        cust = Customer.query.filter_by(email=current_user.email).first()
+        new_cust_email = Customer.query.filter_by(email=form.email.data).first()
+        if new_cust_email is not None and cust is not new_cust_email:
+            flash("The email address " + form.email.data + " is already in use. No details were updated.", "danger")
+            form.email.data = cust.email
+            return
+        cust.email = form.email.data
+        cust.dob = form.dob.data
+        cust.first_name = form.firstname.data
+        cust.last_name = form.lastname.data
+        if form.new_password.data is not None and form.new_password.data != "":
+            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+            cust.password = hashed_password
+        db.session.commit()
+        flash('Successfully updated account details.', "success")
+    except SQLAlchemyError:
+        flash("Something went wrong updating your details. Please contact customer service to update manually.")
+
+
+def collect_user_bookings():
+    flight_info = []
+    for booking in current_user.bookings:
+        departure = Departure.query.filter_by(id=booking.flight).first()
+        route = Route.query.filter_by(flight_code=departure.flight_number).first()
+        dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
+        arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
+        booking_past = date_in_past(datetime.datetime.combine(departure.depart_date, route.depart_time),
+                                    dep_airport.timezone)
+        flight_info.append([booking, departure, route, dep_airport, arr_airport, booking_past])
+    return sorted(flight_info, key=lambda flight: flight[1].depart_date)
