@@ -3,6 +3,8 @@
 {% block title %}Page Not Found{% endblock %}
 
 {% block content %}
-    <h2>Oops! Looks like that page doesn't exist.</h2>
-    <a href="{{ url_for('home') }}"><p>Click Here</a> to return to the homepage.</p>
+    <div class="content-section>">
+        <h2>Oops! Looks like that page doesn't exist.</h2>
+        <a href="{{ url_for('home') }}"><p>Click here</a> to return to the homepage.</p>
+    </div>
 {% endblock content %}
