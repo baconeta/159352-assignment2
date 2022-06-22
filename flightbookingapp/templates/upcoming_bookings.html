@@ -7,21 +7,24 @@
                     Click here to make one!</a></p>
             {% else %}
                 <br>
-                {% for booking, details in bookings.items() %}
+                {% for booking in bookings %}
                     <div class="content-section">
                         <form method="post" action="">
-                            <h3 class="text-primary">Booking reference {{ booking.upper() }}</h3>
-                            <h5>Flight {{ details[1].flight_number }} flying from {{ details[3].name }}
-                                to {{ details[4].name }}</h5>
+                            <h3 class="text-primary">Booking reference {{ booking[0].booking_ref.upper() }}</h3>
+                            <h5>Flight {{ booking[1].flight_number }} flying from {{ booking[3].name }}
+                                to {{ booking[4].name }}</h5>
                             <br>
-                            <h5>Departure: {{ (details[1].depart_date).strftime("%a %d %B") }} at
-                                {{ details[2].depart_time }} {{ details[3].timezone }}</h5>
-                            <h5>Arrival: {{ (details[1].arrival_date).strftime("%a %d %B") }} at
-                                {{ details[2].arrive_time }} {{ details[4].timezone }}</h5>
-                            <h5>Tickets: {{ details[0].tickets }}</h5>
-                            <input type="hidden" name="booking" value={{ booking.upper() }}>
+                            <h5>Departure: {{ (booking[1].depart_date).strftime("%a %d %B") }} at
+                                {{ booking[2].depart_time }} {{ booking[3].timezone }}</h5>
+                            <h5>Arrival: {{ (booking[1].arrival_date).strftime("%a %d %B") }} at
+                                {{ booking[2].arrive_time }} {{ booking[4].timezone }}</h5>
+                            <h5>Tickets: {{ booking[0].tickets }}</h5>
+                            <input type="hidden" name="booking" value={{ booking[0].booking_ref.upper() }}>
                             <input type="submit" value="View invoice" name="view" class="btn btn-outline-info">
-                            <input type="submit" value="Cancel booking" name="cancel" class="btn btn-outline-info">
+                            {% if not booking[5] %}
+                                <input type="submit" value="Cancel booking" name="cancel" class="btn btn-outline-info">
+                            {% endif %}
+
                             {# TODO Add stopovers #}
                         </form>
 

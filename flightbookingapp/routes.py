@@ -136,14 +136,16 @@ def bookings():
 
 
 def collect_user_bookings():
-    flight_info = {}
+    flight_info = []
     for booking in current_user.bookings:
         departure = Departure.query.filter_by(id=booking.flight).first()
         route = Route.query.filter_by(flight_code=departure.flight_number).first()
         dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
         arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
-        flight_info[booking.booking_ref] = [booking, departure, route, dep_airport, arr_airport]
-    return flight_info
+        booking_past = date_in_past(datetime.datetime.combine(departure.depart_date, route.depart_time),
+                                    dep_airport.timezone)
+        flight_info.append([booking, departure, route, dep_airport, arr_airport, booking_past])
+    return sorted(flight_info, key=lambda flight: flight[1].depart_date)
 
 
 @app.route('/search_results/<fly_from>&<fly_to>&<tickets>&<date>', methods=['GET', 'POST'])
@@ -217,7 +219,8 @@ def invoice(booking_ref, surname):
         route = Route.query.filter_by(flight_code=departure.flight_number).first()
         date = departure.depart_date
         aircraft = Aircraft.query.filter_by(id=route.plane).first()
-        return render_template('invoice.html', booking=booking, date=date, customer=booker, departure=departure, route=route, aircraft=aircraft)
+        return render_template('invoice.html', booking=booking, date=date, customer=booker, departure=departure,
+                               route=route, aircraft=aircraft)
     except SQLAlchemyError:
         flash(
             "Something went wrong getting your invoice. Please call our helpdesk on 07-555-1010 during business hours for support.",
