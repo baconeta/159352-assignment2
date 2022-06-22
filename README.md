@@ -26,5 +26,7 @@ Made for 159.352 Advanced Web Development at Massey University April 2022 by Jos
 
 ## Acknowledgements and references
 https://www.craiyon.com/ - AI generated logo design
+
 https://github.com/sparksuite/simple-html-invoice-template - Invoice template
 
+https://fontawesome.com/ - Various icons by Font Awesome Free
