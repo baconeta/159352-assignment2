@@ -228,6 +228,35 @@ def invoice(booking_ref, surname):
         return render_template(url_for('home'))
 
 
+def update_customer_password(form):
+    try:
+        cust = Customer.query.filter_by(email=form.email.data).first()
+        if cust is None:
+            flash('No account exists with email address' + form.email.data, "warning")
+            return False
+        if form.dob.data == cust.dob:
+            hashed_password = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+            cust.password = hashed_password
+            db.session.commit()
+            flash("Password reset successfully", "success")
+            return True
+        else:
+            flash('Email and date of birth don\'t match.', "warning")
+            return False
+    except SQLAlchemyError:
+        flash('Something went wrong with your request. Contact our call centre if the problem persists', "danger")
+        return False
+
+
+@app.route('/reset', methods=['GET', 'POST'])
+def reset_password():
+    form = ResetPasswordForm()
+    if form.validate_on_submit():
+        if update_customer_password(form):
+            return redirect(url_for('login'))
+    return render_template('reset_password.html', form=form)
+
+
 def save_booking(flight, tickets, customer_number):
     booking_ref = ""
     try:
