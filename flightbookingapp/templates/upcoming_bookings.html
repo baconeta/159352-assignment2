@@ -26,9 +26,9 @@
                                 </h5>
                                 {% if booking[2].stopover_time != None %}
                                     <h5>
-                                        <i class="fa-solid fa-plane"></i> Stopover in {{ booking[2].stopover_airport }}
+                                        <i class="fa-solid fa-plane"></i> Stopover in {{ booking[6].name }}
                                         at {{ booking[2].stopover_time.strftime("%#I:%M%p") }}
-                                        ({{ booking[3].timezone }} time).
+                                        ({{ booking[6].timezone }} time).
                                     </h5>
                                 {% endif %}
                                 <h5>

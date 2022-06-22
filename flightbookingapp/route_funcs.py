@@ -202,7 +202,8 @@ def collect_user_bookings():
         route = Route.query.filter_by(flight_code=departure.flight_number).first()
         dep_airport = Airport.query.filter_by(int_code=route.depart_airport).first()
         arr_airport = Airport.query.filter_by(int_code=route.arrive_airport).first()
+        stopover_airport = Airport.query.filter_by(int_code=route.stopover_airport).first()
         booking_past = date_in_past(datetime.datetime.combine(departure.depart_date, route.depart_time),
                                     dep_airport.timezone)
-        flight_info.append([booking, departure, route, dep_airport, arr_airport, booking_past])
+        flight_info.append([booking, departure, route, dep_airport, arr_airport, booking_past, stopover_airport])
     return sorted(flight_info, key=lambda flight: flight[1].depart_date)
