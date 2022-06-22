@@ -13,7 +13,7 @@
             <div class="media-body">
                 {% if bookable != {} %}
                     {% for flight, details in bookable.items() %}
-                        <div class="content-section">
+                        <div class="content-section fade-in-div">
                             <form method="POST" action="">
                                 <h3>Flight {{ flight.flight_number }}</h3>
                                 <table class="table">
@@ -26,11 +26,11 @@
                                         </td>
                                         <td>
                                             {{ flight.depart_date.strftime("%A %d %B, %Y") }}
-                                            at {{ details[0].depart_time.strftime("%#I:%M%p") }} {{ details[2].timezone }}
-                                            time.<br>
+                                            at {{ details[0].depart_time.strftime("%#I:%M%p") }} ({{ details[2].timezone }}
+                                            time).<br>
                                             {{ flight.arrival_date.strftime("%A %d %B, %Y") }}
-                                            at {{ details[0].arrive_time.strftime("%#I:%M%p") }} {{ details[3].timezone }}
-                                            time.
+                                            at {{ details[0].arrive_time.strftime("%#I:%M%p") }} ({{ details[3].timezone }}
+                                            time).
                                         </td>
                                         <td>
                                             <i>{{ details[1] }} seats remaining at this price</i></br>
