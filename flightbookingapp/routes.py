@@ -183,8 +183,12 @@ def book(tickets, departure):
 
     if request.method == "POST":
         if 'Confirm booking' in request.form.get('confirm') and current_user.is_authenticated:
-            booking_ref = funcs.save_booking(flight, tickets, current_user.id)
-            return redirect(url_for('confirmation', booking_ref=booking_ref.upper()))
+            booking_ref, success = funcs.save_booking(flight, tickets, current_user.id)
+            if success:
+                return redirect(url_for('confirmation', booking_ref=booking_ref.upper()))
+            else:
+                flash("Those tickets were sold while you were waiting! Try finding another flight.", "danger")
+                redirect(url_for('home'))
 
     return render_template('book.html', flight=flight, route=route, tickets=tickets, dep=dep_airport, arr=arr_airport)
 

@@ -12,41 +12,55 @@ from flightbookingapp.models import Booking, Route, Departure, Aircraft, Airport
 
 
 def save_booking(flight, tickets, customer_number):
-    booking_ref = ""
     try:
         booking_ref = generate_booking_ref()
         new_booking = Booking(booking_ref=booking_ref, customer=customer_number, flight=flight.id, tickets=tickets)
         db.session.add(new_booking)
-        flight.booked_seats += int(tickets)
-
-        handle_stopover_pathings(flight, tickets)
-
-        db.session.commit()
+        route = Route.query.filter_by(flight_code=flight.flight_number).first()
+        total_seats = Aircraft.query.filter_by(id=route.plane).first().seats
+        if flight.booked_seats + int(tickets) <= total_seats:
+            flight.booked_seats += int(tickets)
+        else:
+            db.session.rollback()
+            return "", False
+        if handle_stopover_pathings(flight, tickets):
+            db.session.commit()
+        else:
+            db.session.rollback()
+            return "", False
         flash("Your booking has been confirmed.", "success")
+        return booking_ref, True
     except SQLAlchemyError:
         flash(
             "Something went wrong making your booking. Please call our helpdesk on 07-555-1010 during business hours for support.",
             "danger")
-    return booking_ref
+        db.session.rollback()
+        return "", False
 
 
 def handle_stopover_pathings(flight, tickets, cancel=False):
     route = Route.query.filter_by(flight_code=flight.flight_number).first()
     if route.stopover_airport is not None:
-        stopover_route = route.flight_code + "-R"
-        stopover_flight = Departure.query.filter_by(flight_number=stopover_route,
-                                                    depart_date=flight.depart_date).first()
-        if cancel:
-            stopover_flight.booked_seats -= int(tickets)
-        else:
-            stopover_flight.booked_seats += int(tickets)
+        stopover_route = Route.query.filter_by(flight_code=route.flight_code + "-R").first()
+        return check_and_update_stopover_flights(flight, stopover_route, cancel, tickets)
+
     if "-R" in flight.flight_number:
-        origin_route = route.flight_code[:-2]
-        origin_flight = Departure.query.filter_by(flight_number=origin_route, depart_date=flight.depart_date).first()
-        if cancel:
-            origin_flight.booked_seats -= int(tickets)
+        origin_route = Route.query.filter_by(flight_code=route.flight_code[:-2]).first()
+        return check_and_update_stopover_flights(flight, origin_route, cancel, tickets)
+    return True
+
+
+def check_and_update_stopover_flights(flight, route, cancel, tickets):
+    stopover_flight = Departure.query.filter_by(flight_number=route.flight_code, depart_date=flight.depart_date).first()
+    max_seats = Aircraft.query.filter_by(id=route.plane).first().seats
+    if cancel:
+        stopover_flight.booked_seats -= int(tickets)
+    else:
+        if stopover_flight.booked_seats + int(tickets) <= max_seats:
+            stopover_flight.booked_seats += int(tickets)
         else:
-            origin_flight.booked_seats += int(tickets)
+            return False
+    return True
 
 
 def find_matching_flights(date, fly_from, fly_to, tickets):
@@ -121,6 +135,7 @@ def cancel_booking(booking_ref):
         db.session.commit()
         flash("Booking " + booking_ref + " cancelled successfully.", "success")
     except SQLAlchemyError:
+        db.session.rollback()
         flash("Something went wrong cancelling this booking.", "danger")
 
 
@@ -153,6 +168,7 @@ def reset_customer_password(form):
             flash('Email and date of birth don\'t match.', "warning")
             return False
     except SQLAlchemyError:
+        db.session.rollback()
         flash('Something went wrong with your request. Contact our call centre if the problem persists', "danger")
         return False
 
@@ -175,6 +191,7 @@ def update_customer_details(form):
         db.session.commit()
         flash('Successfully updated account details.', "success")
     except SQLAlchemyError:
+        db.session.rollback()
         flash("Something went wrong updating your details. Please contact customer service to update manually.")
 
 
