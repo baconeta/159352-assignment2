@@ -10,7 +10,7 @@ Run the docker .tar file locally to host the server.
 The following docker commands will let you load and run the server from the .tar file
 
 ```bash
-  docker load -o 20019455.tar.gz
+  docker load -o 20019455.tar
   docker run -it --rm --publish 5555:8000 20019455
 ```
 
