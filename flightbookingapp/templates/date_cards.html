@@ -1,12 +1,12 @@
 <div class="container d-flex justify-content-between p-0">
     {% for day in dates %}
         {% if loop.index0 == loop.length // 2 %}
-            <div class="btn card border-warning mb-3"
-                 style="width: 9rem; pointer-events: none;">
+            <button class="btn card btn-outline-warning border-warning mb-3"
+                    style="width: 9rem; pointer-events: none;">
                 <div class="card-body">
                     <h5 class="card-title">{{ day.strftime("%a %d %B") }}</h5>
                 </div>
-            </div>
+            </button>
             <input type="hidden" value={{ day }} name="date" class="btn btn-outline-info stretched-link">
         {% else %}
             <form method="post" action="">
