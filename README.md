@@ -51,6 +51,9 @@ Example invoice:
 - Historical bookings system showing all past bookings
 - The ability for a logged in user to edit their personal info and update their bookings quickly and easily
 - Fully functional HTTPS fucntionality, including protection from cross-site scripting and password leaks with strong hashing authentication
+- A completely systematic migration tool to allow for database model upgrades without losing any data (using alembic)
+
+
 ## Tech Stack
 
 - Python 3.10
